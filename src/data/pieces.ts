@@ -9,24 +9,24 @@ import coneLampSketch from "@/assets/cone-lamp-sketch.jpg";
 import unusualJugs1 from "@/assets/piece-unusual-jugs-1.png";
 import candleHolder1 from "@/assets/piece-candle-holder-1.png";
 import candleHolder2 from "@/assets/piece-candle-holder-2.png";
-import fondueSet from "@/assets/piece-fondue-party-set.jpg.asset.json";
-import fondueCheese from "@/assets/piece-fondue-party-cheese.jpg.asset.json";
-import elevatedHero from "@/assets/piece-elevated-delights-stands-trio.png.asset.json";
-import elevatedTrio from "@/assets/piece-elevated-delights-IMG_4327.jpg.asset.json";
-import elevatedPastries from "@/assets/piece-elevated-delights-IMG_4311.jpg.asset.json";
-import elevatedWheel from "@/assets/piece-elevated-delights-IMG_1695.jpg.asset.json";
-import elevatedParts from "@/assets/piece-elevated-delights-IMG_1699.jpg.asset.json";
-import fantasyLampLit from "@/assets/piece-fantasy-lamp-lit.png.asset.json";
-import fantasyLampFull from "@/assets/piece-fantasy-lamp-IMG_3931.jpg.asset.json";
-import fantasyLampTexture from "@/assets/piece-fantasy-lamp-IMG_3934.jpg.asset.json";
-import fantasyLampCable from "@/assets/piece-fantasy-lamp-IMG_3927.jpg.asset.json";
-import afternoonCoffeeMug from "@/assets/piece-afternoon-coffee-IMG_4334.jpg.asset.json";
-import afternoonCoffeeTable from "@/assets/piece-afternoon-coffee-IMG_4338.jpg.asset.json";
-import afternoonCoffeeLineup from "@/assets/piece-afternoon-coffee-IMG_4332.jpg.asset.json";
-import afternoonCoffeeBisque from "@/assets/piece-afternoon-coffee-IMG_3971.jpg.asset.json";
-import geometricTrio from "@/assets/piece-geometric-trio.png.asset.json";
-import geometricRed from "@/assets/piece-geometric-IMG_0893.jpg.asset.json";
-import geometricNatural from "@/assets/piece-geometric-natural-red.png.asset.json";
+import fondueSet from "@/assets/piece-fondue-party-set.png";
+import fondueCheese from "@/assets/piece-fondue-party-cheese.jpg";
+import elevatedHero from "@/assets/piece-elevated-delights-stands-trio.png";
+import elevatedTrio from "@/assets/piece-elevated-delights-IMG_4327.jpg";
+import elevatedPastries from "@/assets/piece-elevated-delights-IMG_4311.jpg";
+import elevatedWheel from "@/assets/piece-elevated-delights-IMG_1695.jpg";
+import elevatedParts from "@/assets/piece-elevated-delights-IMG_1699.jpg";
+import fantasyLampLit from "@/assets/piece-fantasy-lamp-lit.png";
+import fantasyLampFull from "@/assets/piece-fantasy-lamp-IMG_3931.jpg";
+import fantasyLampTexture from "@/assets/piece-fantasy-lamp-IMG_3934.jpg";
+import fantasyLampCable from "@/assets/piece-fantasy-lamp-IMG_3927.jpg";
+import afternoonCoffeeMug from "@/assets/piece-afternoon-coffee-IMG_4334.jpg";
+import afternoonCoffeeTable from "@/assets/piece-afternoon-coffee-IMG_4338.jpg";
+import afternoonCoffeeLineup from "@/assets/piece-afternoon-coffee-IMG_4332.jpg";
+import afternoonCoffeeBisque from "@/assets/piece-afternoon-coffee-IMG_3971.jpg";
+import geometricTrio from "@/assets/piece-geometric-trio.png";
+import geometricRed from "@/assets/piece-geometric-IMG_0893.jpg";
+import geometricNatural from "@/assets/piece-geometric-natural-red.png";
 
 export type Purpose = "Functional" | "Decorative" | "Sculptural" | "Lighting";
 export type Difficulty = "Beginner" | "Intermediate" | "Advanced";
@@ -175,7 +175,7 @@ export const pieces: Piece[] = [
     techniques: ["Wheel-thrown"],
     purpose: "Functional",
     estimatedTime: "5–7 hours",
-    images: [fondueSet.url, fondueCheese.url],
+    images: [fondueSet, fondueCheese],
     story: [
       "This set came straight from my love of hosting and bringing people together around the table. There is something so special about sharing food from dishes you've made with your own hands—it turns a simple evening into an occasion. I wanted to make a fondue set that felt warm, welcoming, and a little bit playful, the kind of piece you'd pull out whenever friends come over.",
       "The clay itself is called Puntitos and it's genuinely one of my favourites to work with. It has these lovely little dark flecks running all the way through it, almost like freckles in the surface. Because the clay is already doing so much of the visual work, I kept the finish really simple with just a soft white matte glaze. It lets the speckles shine through and gives the whole set a calm, understated look.",
@@ -206,8 +206,8 @@ export const pieces: Piece[] = [
     techniques: ["Wheel-thrown"],
     purpose: "Functional",
     estimatedTime: "4–6 hours",
-    images: [elevatedTrio.url, elevatedPastries.url, elevatedHero.url],
-    processImages: [elevatedWheel.url, elevatedParts.url],
+    images: [elevatedTrio, elevatedPastries, elevatedHero],
+    processImages: [elevatedWheel, elevatedParts],
     story: [
       "The story behind these cake stands is all about hosting. When you've spent the afternoon laying out a beautiful spread for a dinner party, there's never quite enough room on the table for everything. These elevated plates let you use your favourite ceramics while giving every dish its own little stage—and freeing up precious space underneath for more.",
       "They've also become part of a ritual I've adopted since moving to Spain: La Merienda. It's that lovely afternoon pause—a coffee, a tea, or a mate paired with something sweet—a bit like the British idea of afternoon tea. These stands feel made for it. In the photos you can see some of my favourite treats on them: pastéis de nata (I recently brought some back from Belém, and they really are as good as everyone says), and the medialunas from Alfa, which living in Barcelona has become one of our go-to options.",
@@ -237,8 +237,8 @@ export const pieces: Piece[] = [
     techniques: ["Wheel-thrown"],
     purpose: "Lighting",
     estimatedTime: "5–7 hours (plus drying and firing)",
-    images: [fantasyLampLit.url, fantasyLampFull.url],
-    processImages: [fantasyLampTexture.url, fantasyLampCable.url],
+    images: [fantasyLampLit, fantasyLampFull],
+    processImages: [fantasyLampTexture, fantasyLampCable],
     story: [
       "This little lamp is one of my favourite pieces to look at. There's something about its silhouette and texture that makes it feel almost natural—like something that quietly grew on the floor of a fantasy forest rather than anything I made on a wheel. It feels mythical, and that was really the whole point: natural and mythical, somewhere between a mushroom, a pinecone, and a tiny enchanted lantern.",
       "I threw it in two parts on the wheel—a bulbous top and a sturdier bottom—then scored, slipped, and joined them while they were still soft enough to move together. Once the form was settled, I went over the entire outside with a loop tool, carving little pebble-like marks all around it. That texture is what really brings the piece to life, especially when the light catches it from above and the shadows pool inside each scoop.",
@@ -270,8 +270,8 @@ export const pieces: Piece[] = [
     techniques: ["Wheel-thrown"],
     purpose: "Functional",
     estimatedTime: "4–5 hours (plus drying and firing)",
-    images: [afternoonCoffeeMug.url, afternoonCoffeeTable.url, afternoonCoffeeLineup.url],
-    processImages: [afternoonCoffeeBisque.url],
+    images: [afternoonCoffeeMug, afternoonCoffeeTable, afternoonCoffeeLineup],
+    processImages: [afternoonCoffeeBisque],
     story: [
       "This little set is built around one of my favourite moments of the day: the afternoon coffee. I usually go for a cortado—an espresso cut with just a splash of oat milk—and I wanted a set of pieces that turn that small daily ritual into something a bit more intentional. There's a mug for the coffee, a tiny jug for the milk, a small bowl for sugar, and another little bowl for the after-lunch chocolate or snack. Everything you need for one person, one quiet pause.",
       "I made the whole set using a technique called throwing off the hump. It was only the second time I'd tried it, and it's genuinely tricky—you keep one big lump of clay centred on the wheel and throw piece after piece off the top, slicing each one free with a wire before starting the next. Mine came out in slightly different sizes (which I love), and once I had them all lined up I thought: what is this set actually for? The afternoon timing answered the question for me—it became a cortado set.",
@@ -302,7 +302,7 @@ export const pieces: Piece[] = [
     techniques: ["Wheel-thrown", "Hand-built"],
     purpose: "Decorative",
     estimatedTime: "6–8 hours",
-    images: [geometricTrio.url, geometricRed.url, geometricNatural.url],
+    images: [geometricTrio, geometricRed, geometricNatural],
     story: [
       "This little collection started as an experiment with shape and felt almost ancient by the time it was finished. The bowls are decorative, designed to live as ornaments around the house, but there is something about their silhouettes that feels pulled out of another time. The one with the straighter, faceted edges almost looks like a fish—completely unintentional, but it gives the piece a modern, unusual character while still echoing the shape of very old soup bowls.",
       "I keep coming back to the idea of a soup bowl when I look at them. The shape works for soup, for drinks, maybe for something ceremonial—but mostly I think of that moment at the end of a meal when you can't quite get the last spoonful and you pick the bowl up to drink it. My sister did this constantly when we were kids and always got told off for it. Now my partner does the same thing, and it makes me laugh every time, because the original soup bowl was actually designed for exactly that. The handles slowly disappeared over the centuries, but the gesture stayed.",
