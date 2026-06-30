@@ -11,14 +11,14 @@ const Footer = () => (
       </nav>
       <div className="flex items-center gap-4">
         <a
-          href="https://instagram.com"
+          href="https://instagram.com/kilninitwithchloe"
           target="_blank"
           rel="noopener noreferrer"
           className="hover:text-foreground transition-colors"
         >
           Instagram
         </a>
-        <span>© {new Date().getFullYear()} Chloe Ceramics</span>
+        <span>© {new Date().getFullYear()} Kilnin' it with Chloe</span>
       </div>
     </div>
   </footer>
