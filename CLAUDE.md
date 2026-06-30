@@ -74,13 +74,45 @@ To add or edit a ceramic piece:
 
 The gallery auto-updates; filtering logic is in `FilterBar.tsx` and `Index.tsx`.
 
+## Development Workflow
+
+### Local Development
+1. Create a feature branch: `git checkout -b feature/my-feature`
+2. Make changes and test locally: `npm run dev`
+3. Run linter & tests: `npm run lint && npm test`
+4. Build locally to verify: `npm run build`
+5. Commit and push to your branch
+6. Create a pull request on GitHub
+
+### GitHub Actions CI
+Every push and PR automatically runs:
+- Dependency installation (`npm ci`)
+- Linting (`npm run lint`)
+- Test suite (`npm test`)
+- Production build (`npm run build`)
+
+If CI passes, your PR is safe to merge. CI runs are visible as checks on the PR.
+
 ## Deployment
 
 - **Host**: Netlify
 - **Build command**: `npm run build`
 - **Publish directory**: `dist`
-- **Trigger**: Any push to `main` auto-deploys
-- **Redirects**: Defined in `_redirects` file (SPA routing support)
+- **Config**: `netlify.toml` (explicit build settings, redirects, headers, cache rules)
+- **Trigger**: Any push to `main` auto-deploys to production after GitHub Actions CI passes
+- **Deploy Previews**: PRs automatically get preview URLs (when enabled in Netlify dashboard)
+
+### Deployment Flow
+```
+Local (feature branch)
+  ↓ git push
+  ↓ GitHub (PR created)
+  ↓ GitHub Actions (lint/test/build)
+  ↓ If ✅, merge to main
+  ↓ GitHub (push to main)
+  ↓ Netlify (Build & Deploy)
+  ↓ Live at https://kilninwithchloe.com
+```
 
 ## Code Conventions
 
@@ -93,3 +125,16 @@ The gallery auto-updates; filtering logic is in `FilterBar.tsx` and `Index.tsx`.
 ## Contact Form Integration
 
 The Contact form (src/pages/Contact.tsx) integrates with Formspree. The endpoint must be set in Contact.tsx—update the endpoint if needed or replace with alternative backend service.
+
+## Transition Notes (Lovable → Claude Code)
+
+As of June 2026, this project has transitioned from Lovable.dev to Claude Code:
+
+- ✅ Removed `lovable-tagger` plugin — no longer needed
+- ✅ Deleted `.lovable/` directory — not used going forward
+- ✅ Updated `index.html` branding — your site, not Lovable's
+- ✅ Added **GitHub Actions CI** — automated lint/test/build checks
+- ✅ Added **netlify.toml** — explicit Netlify configuration
+- ✅ Project fully independent — all changes now via Claude Code + git
+
+The codebase is clean, tested, and ready for ongoing development with Claude Code.
