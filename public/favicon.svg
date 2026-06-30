@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <!-- Background rounded square -->
+  <rect width="100" height="100" rx="22" fill="#F7F2EA"/>
+
+  <!-- Ceramic pot body -->
+  <ellipse cx="50" cy="68" rx="26" ry="9" fill="#C1601A"/>
+  <path d="M24 52 Q22 68 24 68 Q38 78 62 78 Q76 78 76 68 Q78 68 76 52 Q70 44 50 44 Q30 44 24 52Z" fill="#D4783A"/>
+
+  <!-- Pot rim highlight -->
+  <ellipse cx="50" cy="52" rx="26" ry="7" fill="#E89050"/>
+
+  <!-- Pot opening / inner shadow -->
+  <ellipse cx="50" cy="52" rx="20" ry="5" fill="#B5541A"/>
+
+  <!-- Flame -->
+  <path d="M50 14 C48 20 43 24 44 31 C45 36 50 38 50 38 C50 38 55 36 56 31 C57 24 52 20 50 14Z" fill="#FFD100"/>
+  <path d="M50 22 C49 26 46 28 47 32 C47.5 35 50 36 50 36 C50 36 52.5 35 53 32 C54 28 51 26 50 22Z" fill="#FF9A00"/>
+</svg>
