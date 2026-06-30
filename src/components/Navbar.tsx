@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
-import logo from "@/assets/kilninit-logo.png";
 
 const navLinks = [
   { to: "/", label: "Gallery" },
@@ -17,7 +16,7 @@ const Navbar = () => {
     <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="container flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center">
-          <img src={logo} alt="Kilnin' It with Chloe" className="h-10 w-auto" />
+          <span className="text-xl font-semibold tracking-tight">Kilnin' It with Chloe</span>
         </Link>
 
         {/* Desktop nav */}
