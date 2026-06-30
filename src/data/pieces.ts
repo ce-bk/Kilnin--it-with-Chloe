@@ -1,8 +1,6 @@
 import mixingGlazes1 from "@/assets/piece-mixing-glazes-1.jpg";
 import mixingGlazes2 from "@/assets/piece-mixing-glazes-2.jpg";
 import mixingGlazes3 from "@/assets/piece-mixing-glazes-3.jpg";
-import coneLamp1 from "@/assets/piece-cone-lamp-1.png";
-import coneLamp2 from "@/assets/piece-cone-lamp-2.jpg";
 import coneLamp3 from "@/assets/cone-lamp-2.jpg";
 import coneLampHero from "@/assets/cone-lamp-hero.jpg";
 import coneLampSketch from "@/assets/cone-lamp-sketch.jpg";
@@ -11,12 +9,12 @@ import candleHolder1 from "@/assets/piece-candle-holder-1.png";
 import candleHolder2 from "@/assets/piece-candle-holder-2.png";
 import fondueSet from "@/assets/piece-fondue-party-set.png";
 import fondueCheese from "@/assets/piece-fondue-party-cheese.jpg";
-import elevatedHero from "@/assets/piece-elevated-delights-stands-trio.png";
+import elevatedHero from "@/assets/piece-elevated-delights-stands-trio.jpg";
 import elevatedTrio from "@/assets/piece-elevated-delights-IMG_4327.jpg";
 import elevatedPastries from "@/assets/piece-elevated-delights-IMG_4311.jpg";
 import elevatedWheel from "@/assets/piece-elevated-delights-IMG_1695.jpg";
 import elevatedParts from "@/assets/piece-elevated-delights-IMG_1699.jpg";
-import fantasyLampLit from "@/assets/piece-fantasy-lamp-lit.png";
+import fantasyLampLit from "@/assets/piece-fantasy-lamp-lit.jpg";
 import fantasyLampFull from "@/assets/piece-fantasy-lamp-IMG_3931.jpg";
 import fantasyLampTexture from "@/assets/piece-fantasy-lamp-IMG_3934.jpg";
 import fantasyLampCable from "@/assets/piece-fantasy-lamp-IMG_3927.jpg";
@@ -24,9 +22,9 @@ import afternoonCoffeeMug from "@/assets/piece-afternoon-coffee-IMG_4334.jpg";
 import afternoonCoffeeTable from "@/assets/piece-afternoon-coffee-IMG_4338.jpg";
 import afternoonCoffeeLineup from "@/assets/piece-afternoon-coffee-IMG_4332.jpg";
 import afternoonCoffeeBisque from "@/assets/piece-afternoon-coffee-IMG_3971.jpg";
-import geometricTrio from "@/assets/piece-geometric-trio.png";
+import geometricTrio from "@/assets/piece-geometric-trio.jpg";
 import geometricRed from "@/assets/piece-geometric-IMG_0893.jpg";
-import geometricNatural from "@/assets/piece-geometric-natural-red.png";
+import geometricNatural from "@/assets/piece-geometric-natural-red.jpg";
 
 export type Purpose = "Functional" | "Decorative" | "Sculptural" | "Lighting";
 export type Difficulty = "Beginner" | "Intermediate" | "Advanced";
@@ -270,8 +268,8 @@ export const pieces: Piece[] = [
     techniques: ["Wheel-thrown"],
     purpose: "Functional",
     estimatedTime: "4–5 hours (plus drying and firing)",
-    images: [afternoonCoffeeMug, afternoonCoffeeTable, afternoonCoffeeLineup],
-    processImages: [afternoonCoffeeBisque],
+    images: [afternoonCoffeeTable, afternoonCoffeeLineup],
+    processImages: [afternoonCoffeeBisque, afternoonCoffeeMug],
     story: [
       "This little set is built around one of my favourite moments of the day: the afternoon coffee. I usually go for a cortado—an espresso cut with just a splash of oat milk—and I wanted a set of pieces that turn that small daily ritual into something a bit more intentional. There's a mug for the coffee, a tiny jug for the milk, a small bowl for sugar, and another little bowl for the after-lunch chocolate or snack. Everything you need for one person, one quiet pause.",
       "I made the whole set using a technique called throwing off the hump. It was only the second time I'd tried it, and it's genuinely tricky—you keep one big lump of clay centred on the wheel and throw piece after piece off the top, slicing each one free with a wire before starting the next. Mine came out in slightly different sizes (which I love), and once I had them all lined up I thought: what is this set actually for? The afternoon timing answered the question for me—it became a cortado set.",

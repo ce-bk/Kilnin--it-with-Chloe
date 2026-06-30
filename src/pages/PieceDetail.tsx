@@ -173,7 +173,7 @@ const PieceDetail = () => {
                   <img
                     src={img}
                     alt={`${piece.name} — process ${i + 1}`}
-                    className="w-full h-auto max-h-[560px] object-contain"
+                    className="w-full h-72 md:h-96 object-cover"
                     loading="lazy"
                   />
                 </div>
