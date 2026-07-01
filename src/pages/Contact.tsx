@@ -14,12 +14,18 @@ const contactSchema = z.object({
   message: z.string().trim().min(1, "Message is required").max(2000),
 });
 
+const encode = (data: Record<string, string>) =>
+  Object.keys(data)
+    .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(data[key])}`)
+    .join("&");
+
 const Contact = () => {
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const result = contactSchema.safeParse(form);
     if (!result.success) {
@@ -32,8 +38,21 @@ const Contact = () => {
       return;
     }
     setErrors({});
-    setSubmitted(true);
-    toast.success("Message sent! Chloe will be in touch soon.");
+    setSending(true);
+    try {
+      const formData = new FormData(e.currentTarget);
+      await fetch("/__forms.html", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: encode(Object.fromEntries(formData.entries()) as Record<string, string>),
+      });
+      setSubmitted(true);
+      toast.success("Message sent! Chloe will be in touch soon.");
+    } catch {
+      toast.error("Something went wrong sending your message. Please try again.");
+    } finally {
+      setSending(false);
+    }
   };
 
   const update = (field: string) => (
@@ -65,31 +84,48 @@ const Contact = () => {
       </ScrollReveal>
 
       <ScrollReveal direction="up" delay={150}>
-        <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+        <form
+          name="contact"
+          method="POST"
+          data-netlify="true"
+          netlify-honeypot="bot-field"
+          onSubmit={handleSubmit}
+          className="space-y-5"
+          noValidate
+        >
+          <input type="hidden" name="form-name" value="contact" />
+          <p className="hidden">
+            <label>
+              Don't fill this out: <input name="bot-field" />
+            </label>
+          </p>
+
           <div className="space-y-1.5">
             <Label htmlFor="name">Name *</Label>
-            <Input id="name" value={form.name} onChange={update("name")} />
+            <Input id="name" name="name" value={form.name} onChange={update("name")} />
             {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
           </div>
 
           <div className="space-y-1.5">
             <Label htmlFor="email">Email *</Label>
-            <Input id="email" type="email" value={form.email} onChange={update("email")} />
+            <Input id="email" name="email" type="email" value={form.email} onChange={update("email")} />
             {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
           </div>
 
           <div className="space-y-1.5">
             <Label htmlFor="subject">Subject (optional)</Label>
-            <Input id="subject" value={form.subject} onChange={update("subject")} />
+            <Input id="subject" name="subject" value={form.subject} onChange={update("subject")} />
           </div>
 
           <div className="space-y-1.5">
             <Label htmlFor="message">Message *</Label>
-            <Textarea id="message" rows={5} value={form.message} onChange={update("message")} />
+            <Textarea id="message" name="message" rows={5} value={form.message} onChange={update("message")} />
             {errors.message && <p className="text-xs text-destructive">{errors.message}</p>}
           </div>
 
-          <Button type="submit" className="w-full">Send Message</Button>
+          <Button type="submit" className="w-full" disabled={sending}>
+            {sending ? "Sending…" : "Send Message"}
+          </Button>
         </form>
       </ScrollReveal>
     </main>
