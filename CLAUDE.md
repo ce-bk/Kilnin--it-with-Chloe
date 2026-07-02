@@ -111,7 +111,7 @@ Local (feature branch)
   ↓ If ✅, merge to main
   ↓ GitHub (push to main)
   ↓ Netlify (Build & Deploy)
-  ↓ Live at https://kilninwithchloe.com
+  ↓ Live at https://kilninit.com
 ```
 
 ## Code Conventions
