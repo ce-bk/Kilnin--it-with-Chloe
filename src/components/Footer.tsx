@@ -8,6 +8,7 @@ const Footer = () => (
         <Link to="/" className="hover:text-foreground transition-colors">Gallery</Link>
         <Link to="/about" className="hover:text-foreground transition-colors">About</Link>
         <Link to="/contact" className="hover:text-foreground transition-colors">Contact</Link>
+        <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link>
       </nav>
       <div className="flex items-center gap-4">
         <a
