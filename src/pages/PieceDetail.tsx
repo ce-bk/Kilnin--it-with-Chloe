@@ -30,8 +30,8 @@ const PieceDetail = () => {
       </Link>
 
       {piece.images.length === 2 ? (
-        /* Two images — side by side */
-        <div className="grid grid-cols-2 gap-4 mb-10">
+        /* Two images — stacked on mobile, side by side on larger screens */
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
           {piece.images.map((img, i) => (
             <ScrollReveal key={i} direction={i === 0 ? "left" : "right"} delay={i * 100}>
               <div className="rounded-lg overflow-hidden">
@@ -163,9 +163,6 @@ const PieceDetail = () => {
       {/* Process images */}
       {piece.processImages && piece.processImages.length > 0 && (
         <section className="mb-4">
-          <ScrollReveal direction="up">
-            <h2 className="font-serif text-2xl text-foreground mb-6">The Process</h2>
-          </ScrollReveal>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {piece.processImages.map((img, i) => (
               <ScrollReveal key={i} direction={i % 2 === 0 ? "left" : "right"} delay={i * 100}>
