@@ -13,7 +13,6 @@ import elevatedHero from "@/assets/piece-elevated-delights-stands-trio.jpg";
 import elevatedTrio from "@/assets/piece-elevated-delights-IMG_4327.jpg";
 import elevatedPastries from "@/assets/piece-elevated-delights-IMG_4311.jpg";
 import elevatedWheel from "@/assets/piece-elevated-delights-IMG_1695.jpg";
-import elevatedParts from "@/assets/piece-elevated-delights-IMG_1699.jpg";
 import fantasyLampLit from "@/assets/piece-fantasy-lamp-lit.jpg";
 import fantasyLampFull from "@/assets/piece-fantasy-lamp-IMG_3931.jpg";
 import fantasyLampTexture from "@/assets/piece-fantasy-lamp-IMG_3934.jpg";
@@ -21,7 +20,6 @@ import fantasyLampCable from "@/assets/piece-fantasy-lamp-IMG_3927.jpg";
 import afternoonCoffeeMug from "@/assets/piece-afternoon-coffee-IMG_4334.jpg";
 import afternoonCoffeeTable from "@/assets/piece-afternoon-coffee-IMG_4338.jpg";
 import afternoonCoffeeLineup from "@/assets/piece-afternoon-coffee-IMG_4332.jpg";
-import afternoonCoffeeBisque from "@/assets/piece-afternoon-coffee-IMG_3971.jpg";
 import geometricTrio from "@/assets/piece-geometric-trio.jpg";
 import geometricRed from "@/assets/piece-geometric-IMG_0893.jpg";
 import geometricNatural from "@/assets/piece-geometric-natural-red.jpg";
@@ -205,7 +203,7 @@ export const pieces: Piece[] = [
     purpose: "Functional",
     estimatedTime: "4–6 hours",
     images: [elevatedTrio, elevatedPastries, elevatedHero],
-    processImages: [elevatedWheel, elevatedParts],
+    processImages: [elevatedWheel],
     story: [
       "The story behind these cake stands is all about hosting. When you've spent the afternoon laying out a beautiful spread for a dinner party, there's never quite enough room on the table for everything. These elevated plates let you use your favourite ceramics while giving every dish its own little stage—and freeing up precious space underneath for more.",
       "They've also become part of a ritual I've adopted since moving to Spain: La Merienda. It's that lovely afternoon pause—a coffee, a tea, or a mate paired with something sweet—a bit like the British idea of afternoon tea. These stands feel made for it. In the photos you can see some of my favourite treats on them: pastéis de nata (I recently brought some back from Belém, and they really are as good as everyone says), and the medialunas from Alfa, which living in Barcelona has become one of our go-to options.",
@@ -269,7 +267,7 @@ export const pieces: Piece[] = [
     purpose: "Functional",
     estimatedTime: "4–5 hours (plus drying and firing)",
     images: [afternoonCoffeeTable, afternoonCoffeeLineup],
-    processImages: [afternoonCoffeeBisque, afternoonCoffeeMug],
+    processImages: [afternoonCoffeeMug],
     story: [
       "This little set is built around one of my favourite moments of the day: the afternoon coffee. I usually go for a cortado—an espresso cut with just a splash of oat milk—and I wanted a set of pieces that turn that small daily ritual into something a bit more intentional. There's a mug for the coffee, a tiny jug for the milk, a small bowl for sugar, and another little bowl for the after-lunch chocolate or snack. Everything you need for one person, one quiet pause.",
       "I made the whole set using a technique called throwing off the hump. It was only the second time I'd tried it, and it's genuinely tricky—you keep one big lump of clay centred on the wheel and throw piece after piece off the top, slicing each one free with a wire before starting the next. Mine came out in slightly different sizes (which I love), and once I had them all lined up I thought: what is this set actually for? The afternoon timing answered the question for me—it became a cortado set.",
