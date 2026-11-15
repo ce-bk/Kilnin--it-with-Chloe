@@ -15,8 +15,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        serif: ["Playfair Display", "Georgia", "serif"],
-        sans: ["Playfair Display", "Georgia", "serif"],
+        display: ["Playfair Display", "Georgia", "serif"],
+        sans: ["Hanken Grotesk", "ui-sans-serif", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

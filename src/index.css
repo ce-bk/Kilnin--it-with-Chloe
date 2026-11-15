@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..800;1,400..800&family=Hanken+Grotesk:ital,wght@0,400..700;1,400..700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -45,8 +45,8 @@
     --sidebar-border: 40 15% 91%;
     --sidebar-ring: 49 100% 50%;
 
-    --font-serif: 'Playfair Display', Georgia, serif;
-    --font-sans: 'Playfair Display', Georgia, serif;
+    --font-display: 'Playfair Display', Georgia, serif;
+    --font-sans: 'Hanken Grotesk', ui-sans-serif, system-ui, sans-serif;
   }
 
   .dark {
@@ -88,8 +88,13 @@
     @apply bg-background text-foreground;
     font-family: var(--font-sans);
   }
-  h1, h2, h3 {
-    font-family: var(--font-serif);
+  /* Titles: Playfair Display. Other headings and body: Hanken Grotesk. */
+  h1 {
+    font-family: var(--font-display);
+  }
+  h2, h3, h4 {
+    font-family: var(--font-sans);
+    font-weight: 600;
   }
 }
 
@@ -114,4 +119,45 @@
 .reveal.visible {
   opacity: 1;
   transform: translate(0, 0);
+}
+
+/* ---- Inventory admin (/admin) ----
+   Set on <html> while the admin is open, so portalled sheets and toasts inherit it.
+   Black is the admin's primary; the site's yellow survives as a single highlight. */
+.admin-theme {
+  --background: 40 33% 96%;
+  --foreground: 24 12% 11%;
+  --card: 40 40% 99%;
+  --card-foreground: 24 12% 11%;
+  --popover: 40 40% 99%;
+  --popover-foreground: 24 12% 11%;
+  --primary: 24 12% 11%;
+  --primary-foreground: 40 33% 97%;
+  --secondary: 298 15% 63%;
+  --secondary-foreground: 24 12% 11%;
+  --muted: 38 22% 91%;
+  --muted-foreground: 28 8% 38%;
+  --accent: 38 22% 91%;
+  --accent-foreground: 24 12% 11%;
+  --border: 36 16% 85%;
+  --input: 36 16% 80%;
+  --ring: 24 12% 11%;
+  --highlight: 49 100% 50%;
+  --available-bg: 140 45% 88%;
+  --available-fg: 145 60% 22%;
+  --sold-bg: 30 95% 88%;
+  --sold-fg: 22 80% 30%;
+  --clay: 298 18% 88%;
+  --clay-foreground: 298 14% 34%;
+  color-scheme: light;
+}
+.admin-theme body {
+  -webkit-tap-highlight-color: transparent;
+}
+.admin-theme ::selection {
+  background: hsl(var(--highlight) / 0.55);
+  color: hsl(var(--foreground));
+}
+.admin-theme .tabular {
+  font-variant-numeric: lining-nums tabular-nums;
 }

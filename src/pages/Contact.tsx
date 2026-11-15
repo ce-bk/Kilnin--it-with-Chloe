@@ -62,7 +62,7 @@ const Contact = () => {
   if (submitted) {
     return (
       <main className="container py-20 max-w-lg text-center">
-        <h1 className="font-serif text-3xl text-foreground mb-4">Thank you!</h1>
+        <h1 className="font-display text-3xl text-foreground mb-4">Thank you!</h1>
         <p className="text-muted-foreground mb-6">
           Your message has been sent. Chloe will get back to you as soon as possible.
         </p>
@@ -76,7 +76,7 @@ const Contact = () => {
   return (
     <main className="container py-12 md:py-16 max-w-lg">
       <ScrollReveal direction="up">
-        <h1 className="font-serif text-4xl md:text-5xl text-foreground mb-3">Get in Touch</h1>
+        <h1 className="font-display text-4xl md:text-5xl text-foreground mb-3">Get in Touch</h1>
         <p className="text-muted-foreground mb-10">
           Have a question about a project, want to collaborate, or just want to say hello? 
           I'd love to hear from you.

@@ -4,7 +4,7 @@ import ScrollReveal from "@/components/ScrollReveal";
 const About = () => (
   <main className="container py-12 md:py-16 max-w-4xl">
     <ScrollReveal direction="up">
-      <h1 className="font-serif text-4xl md:text-5xl text-foreground mb-10">About Chloe</h1>
+      <h1 className="font-display text-4xl md:text-5xl text-foreground mb-10">About Chloe</h1>
     </ScrollReveal>
 
     <div className="grid md:grid-cols-2 gap-10 items-start">
@@ -45,7 +45,7 @@ const About = () => (
         </ScrollReveal>
         <ScrollReveal direction="right" delay={300}>
           <section className="pt-2">
-            <h2 className="font-serif text-2xl text-foreground mb-4">Artist Statement</h2>
+            <h2  className="text-2xl text-foreground mb-4">Artist Statement</h2>
             <blockquote className="border-l-2 border-primary pl-6 text-muted-foreground italic leading-relaxed">
               "I'm drawn to the space between intention and accident—that moment when the
               clay decides to do something you didn't plan, and you have to decide whether
@@ -58,7 +58,7 @@ const About = () => (
 
     <ScrollReveal direction="up" delay={100}>
       <section className="mt-12">
-        <h2 className="font-serif text-2xl text-foreground mb-4">Connect</h2>
+        <h2  className="text-2xl text-foreground mb-4">Connect</h2>
         <div className="flex gap-6">
           <a
             href="https://instagram.com"
