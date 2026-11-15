@@ -28,7 +28,7 @@ const GalleryCard = ({ piece, index }: GalleryCardProps) => (
       />
     </div>
     <div className="mt-3 space-y-1.5">
-      <h3 className="font-serif text-lg text-foreground">{piece.name}</h3>
+      <h3  className="text-lg text-foreground">{piece.name}</h3>
       <div className="flex flex-wrap gap-1.5">
         <Badge variant="outline" className="text-xs font-normal">
           {piece.techniques[0]}

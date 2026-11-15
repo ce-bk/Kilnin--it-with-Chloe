@@ -1,140 +1,45 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Guidance for Claude Code in this repository. Start with `README.md` (project map) and `PRODUCT.md` (users, principles, terminology).
 
-## Project Overview
-
-**Kilnin' It with Chloe** is a personal ceramics portfolio website showcasing ceramic pieces with detailed narratives, materials, techniques, and process stories. Built with React + TypeScript + Vite, deployed on Netlify with automatic CI/CD on pushes to main.
-
-## Quick Commands
+## Commands
 
 ```bash
-npm install              # Install dependencies
-npm run dev             # Start dev server (http://localhost:8080)
-npm run build           # Production build
-npm run lint            # Run ESLint
-npm test                # Run vitest once
-npm test:watch          # Run vitest in watch mode (useful during development)
-npm run preview         # Preview production build locally
+npm run dev         # dev server, http://localhost:8080
+npm run lint        # ESLint
+npm test            # Vitest once (npm run test:watch to watch)
+npm run build       # production build
 ```
 
-## Project Architecture
+Run lint, test and build before committing; CI runs the same on every push and PR.
 
-### Core Structure
-- **Pages** (`src/pages/`): Four main routes using React Router
-  - `Index.tsx` — Gallery homepage with filtering
-  - `PieceDetail.tsx` — Individual piece showcase with full story/process
-  - `About.tsx` — Artist bio page
-  - `Contact.tsx` — Contact form (uses Formspree)
-  - `NotFound.tsx` — 404 page
+## Two halves
 
-- **Components** (`src/components/`): Reusable UI pieces
-  - `Navbar.tsx`, `Footer.tsx` — Layout wrapper components
-  - `FilterBar.tsx` — Gallery filtering controls (purpose/difficulty/technique)
-  - `GalleryCard.tsx` — Individual piece card in gallery view
-  - `ScrollReveal.tsx` — Animation wrapper for scroll-in effects
-  - `ui/` — shadcn/ui components (generated; do not edit directly)
+1. **Public portfolio** (`src/pages`, `src/components`, `src/data/pieces.ts`). Content is code: to add a piece, add an entry to `pieces` in `src/data/pieces.ts` with its images imported from `src/assets/`. Story is an array of paragraphs; steps have title, description and optional note.
+2. **Inventory admin** (`/admin`, `src/admin`). Mobile-first shop manager for one maker. Backed by Supabase.
+   - All reads/writes go through hooks in `src/admin/data.ts` (React Query). Pages get everything via `useAdminData()` as props (`AdminData`).
+   - Forms are bottom sheets in `src/admin/sheets.tsx`.
+   - Pieces (`items`) belong to a `category`, may link to a portfolio piece (`site_piece_id`) for a fallback photo, and have a `quantity` (identical units; each sale is one unit).
+   - Events are stored in the `markets` table (packing list in `market_items`); sales point at a market or use the Direct/Online channel.
+   - Database triggers keep `items.status` in step with sales; don't set status to sold from the app.
 
-- **Data Model** (`src/data/pieces.ts`): Single source of truth for all portfolio content
-  - Exports `Piece` interface and `pieces` array
-  - Each piece contains: id, name, techniques, purpose, estimatedTime, images, story, materials, steps
-  - Purpose filter: "Functional" | "Decorative" | "Sculptural" | "Lighting"
-  - Difficulty filter: "Beginner" | "Intermediate" | "Advanced"
-  - Techniques: "Hand-built" | "Wheel-thrown" | "Slab-building"
+## Database changes
 
-- **Hooks** (`src/hooks/`): Custom React hooks
-  - `use-mobile.tsx` — Responsive breakpoint detection
-  - `use-scroll-reveal.ts` — Intersection observer for animation triggers
-  - `use-toast.ts` — Toast notification management
+- Add a new file in `supabase/migrations/` named `YYYYMMDDHHMMSS_name.sql`; never edit an applied migration. They apply on merge to `main` via the Supabase GitHub integration, so new columns don't exist in production until then.
+- Every new table needs row level security, an `authenticated` policy, and `revoke all ... from anon`.
+- Update the types in `src/lib/supabase.ts` to match.
 
-- **UI Library**: shadcn/ui components configured in `components.json` with Tailwind CSS + Radix UI primitives
+## Conventions
 
-### Key Dependencies
-- **React Router** — Navigation between pages
-- **React Query** — Data fetching/caching (configured in App.tsx)
-- **Tailwind CSS** — Styling with DaisyUI-compatible color system
-- **Sonner + custom toaster** — Toast notifications
-- **embla-carousel-react** — Image carousels/galleries
-- **react-hook-form + zod** — Form validation (Contact form uses Formspree API)
+- shadcn/ui from `@/components/ui` (generated, don't edit). `@` is `src/`.
+- Tailwind, mobile-first. TypeScript strict. Function components and hooks.
+- The admin's look is its own theme (`.admin-theme` in `src/index.css`); fonts are Playfair Display (titles) and Hanken Grotesk (everything else).
+- Plain, non-technical wording in the admin UI.
 
-### Development Tools
-- **Vite** — Fast build tool with HMR
-- **TypeScript** — Full type safety
-- **ESLint** — Code quality (no --fix by default; see eslint.config.js)
-- **Vitest** — Unit testing with jsdom
+## Local only, never commit
 
-## Content Management
-
-To add or edit a ceramic piece:
-1. Edit `src/data/pieces.ts`
-2. Add entry to `pieces` array with required `Piece` interface fields
-3. Import images at the top of the file (local assets go to `src/assets/`)
-4. Populate story as array of paragraph strings for better formatting
-5. Define all steps with title + description + optional note
-
-The gallery auto-updates; filtering logic is in `FilterBar.tsx` and `Index.tsx`.
-
-## Development Workflow
-
-### Local Development
-1. Create a feature branch: `git checkout -b feature/my-feature`
-2. Make changes and test locally: `npm run dev`
-3. Run linter & tests: `npm run lint && npm test`
-4. Build locally to verify: `npm run build`
-5. Commit and push to your branch
-6. Create a pull request on GitHub
-
-### GitHub Actions CI
-Every push and PR automatically runs:
-- Dependency installation (`npm ci`)
-- Linting (`npm run lint`)
-- Test suite (`npm test`)
-- Production build (`npm run build`)
-
-If CI passes, your PR is safe to merge. CI runs are visible as checks on the PR.
+`.env.local`, `pricing/` (private pricing notes), `.claude/`, `.impeccable/`, and the admin preview harness (`preview.html`, `preview-frame.html`, `src/admin/__preview.tsx`, `src/admin/__mock.json`, excluded via `.git/info/exclude`). Open `http://localhost:8080/preview.html?p=/admin/pieces` to try the admin with sample data and no database.
 
 ## Deployment
 
-- **Host**: Netlify
-- **Build command**: `npm run build`
-- **Publish directory**: `dist`
-- **Config**: `netlify.toml` (explicit build settings, redirects, headers, cache rules)
-- **Trigger**: Any push to `main` auto-deploys to production after GitHub Actions CI passes
-- **Deploy Previews**: PRs automatically get preview URLs (when enabled in Netlify dashboard)
-
-### Deployment Flow
-```
-Local (feature branch)
-  ↓ git push
-  ↓ GitHub (PR created)
-  ↓ GitHub Actions (lint/test/build)
-  ↓ If ✅, merge to main
-  ↓ GitHub (push to main)
-  ↓ Netlify (Build & Deploy)
-  ↓ Live at https://kilninit.com
-```
-
-## Code Conventions
-
-- Use shadcn/ui components from `@/components/ui` for consistent styling
-- Path alias `@` resolves to `src/` (configured in `vite.config.ts`)
-- TypeScript strict mode enabled
-- Tailwind classes for responsive design (mobile-first)
-- React hooks over class components
-
-## Contact Form Integration
-
-The Contact form (src/pages/Contact.tsx) integrates with Formspree. The endpoint must be set in Contact.tsx—update the endpoint if needed or replace with alternative backend service.
-
-## Transition Notes (Lovable → Claude Code)
-
-As of June 2026, this project has transitioned from Lovable.dev to Claude Code:
-
-- ✅ Removed `lovable-tagger` plugin — no longer needed
-- ✅ Deleted `.lovable/` directory — not used going forward
-- ✅ Updated `index.html` branding — your site, not Lovable's
-- ✅ Added **GitHub Actions CI** — automated lint/test/build checks
-- ✅ Added **netlify.toml** — explicit Netlify configuration
-- ✅ Project fully independent — all changes now via Claude Code + git
-
-The codebase is clean, tested, and ready for ongoing development with Claude Code.
+Netlify builds `npm run build` and publishes `dist` on every push to `main` (`netlify.toml` has redirects, security headers and caching). The Formspree endpoint for the contact form is set in `src/pages/Contact.tsx`.

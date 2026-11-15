@@ -1,12 +1,12 @@
 import { useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
-import { Plus, Search } from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
+import { IdCard, Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Item } from "@/lib/supabase";
 import type { AdminData } from "./AdminApp";
-import { eur } from "./data";
+import { eur, groupByCategory, salesByItem, unitsLeft } from "./data";
 import { PieceSheet, SaleSheet } from "./sheets";
-import { Empty, PageHeader, Segmented, Status, Thumb } from "./ui";
+import { Empty, PageHeader, Segmented, SoldPrice, Status, Thumb } from "./ui";
 
 type Filter = "all" | "available" | "sold" | "not_for_sale" | "unpriced" | "check";
 
@@ -18,7 +18,7 @@ const filters: { value: Filter; label: string }[] = [
 
 const extra: Record<string, string> = { unpriced: "Needs a price", check: "Notes to check", not_for_sale: "Not for sale" };
 
-export default function Pieces({ items, designs, sales, markets }: AdminData) {
+export default function Pieces({ items, categories, sales, markets }: AdminData) {
   const [params, setParams] = useSearchParams();
   const filter = (params.get("filter") as Filter) ?? "available";
   const [query, setQuery] = useState("");
@@ -26,12 +26,11 @@ export default function Pieces({ items, designs, sales, markets }: AdminData) {
   const [creating, setCreating] = useState(false);
   const [selling, setSelling] = useState<Item | null>(null);
 
-  const saleByItem = useMemo(() => new Map(sales.map((s) => [s.item_id, s])), [sales]);
-  const editingSale = editing ? saleByItem.get(editing.id) : undefined;
+  const bySale = useMemo(() => salesByItem(sales), [sales]);
 
   const shown = items.filter((i) => {
     const q = query.trim().toLowerCase();
-    if (q && !`${i.label} ${i.designs?.name ?? ""} ${i.notes ?? ""}`.toLowerCase().includes(q)) return false;
+    if (q && !`${i.label} ${i.categories?.name ?? ""} ${i.notes ?? ""}`.toLowerCase().includes(q)) return false;
     switch (filter) {
       case "all": return true;
       case "unpriced": return i.status === "available" && i.price_eur == null;
@@ -40,18 +39,19 @@ export default function Pieces({ items, designs, sales, markets }: AdminData) {
     }
   });
 
-  const groups = new Map<string, Item[]>();
-  for (const i of shown) {
-    const k = i.designs?.name ?? "Other";
-    groups.set(k, [...(groups.get(k) ?? []), i]);
-  }
+  const groups = groupByCategory(shown);
 
   return (
     <div>
       <PageHeader
         title="Pieces"
         sub={`${items.filter((i) => i.status === "available").length} in stock · ${items.filter((i) => i.status === "sold").length} sold`}
-        action={<Button className="h-11 rounded-xl" onClick={() => setCreating(true)}><Plus /> Add piece</Button>}
+        action={
+          <div className="flex gap-2">
+            <Button asChild variant="outline" size="icon" className="size-11 rounded-xl" aria-label="Print piece cards"><Link to="/admin/cards"><IdCard /></Link></Button>
+            <Button className="h-11 rounded-xl" onClick={() => setCreating(true)}><Plus /> Add piece</Button>
+          </div>
+        }
       />
 
       <div className="sticky top-0 z-10 -mx-4 space-y-3 bg-background/95 px-4 pb-3 pt-1 backdrop-blur md:-mx-8 md:px-8">
@@ -80,25 +80,29 @@ export default function Pieces({ items, designs, sales, markets }: AdminData) {
         <div className="pt-4"><Empty>{query ? `Nothing matches “${query}”.` : "Nothing here."}</Empty></div>
       ) : (
         <div className="space-y-6 pt-3">
-          {[...groups.entries()].map(([design, list]) => (
-            <section key={design}>
+          {groups.map(([category, list]) => (
+            <section key={category}>
               <h2 className="mb-2 flex items-baseline justify-between px-1 text-sm font-semibold">
-                {design}
+                {category}
                 <span className="text-xs font-normal text-muted-foreground">{list.length}</span>
               </h2>
               <ul className="divide-y overflow-hidden rounded-2xl border bg-card">
                 {list.map((i) => {
-                  const sale = saleByItem.get(i.id);
+                  const sale = i.status === "sold" ? bySale.get(i.id)?.at(-1) : undefined;
+                  const qty = i.quantity ?? 1;
                   return (
                     <li key={i.id}>
                       <button onClick={() => setEditing(i)} className="flex w-full items-center gap-3 px-3 py-3 text-left hover:bg-muted/50">
                         <Thumb item={i} className="size-12" />
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-sm font-medium">{i.label}</p>
-                          <Status status={i.status} className="mt-0.5" />
+                          <div className="mt-0.5 flex items-center gap-2">
+                            <Status status={i.status} />
+                            {qty > 1 && <span className="tabular text-xs text-muted-foreground">{unitsLeft(i, bySale)} of {qty} left</span>}
+                          </div>
                         </div>
                         <p className={`tabular text-sm font-semibold ${i.price_eur == null && !sale ? "text-muted-foreground" : ""}`}>
-                          {sale ? eur(sale.price_eur) : i.price_eur == null ? "No price" : eur(i.price_eur)}
+                          {sale ? <SoldPrice paid={sale.price_eur} listed={i.price_eur} /> : i.price_eur == null ? "No price" : eur(i.price_eur)}
                         </p>
                       </button>
                     </li>
@@ -113,9 +117,9 @@ export default function Pieces({ items, designs, sales, markets }: AdminData) {
       <PieceSheet
         item={editing}
         isNew={creating}
-        designs={designs}
-        sale={editingSale}
-        market={editingSale?.market_id ? markets.find((m) => m.id === editingSale.market_id) : undefined}
+        categories={categories}
+        sales={editing ? bySale.get(editing.id) ?? [] : []}
+        markets={markets}
         onClose={() => { setEditing(null); setCreating(false); }}
         onSell={(i) => { setEditing(null); setSelling(i); }}
       />

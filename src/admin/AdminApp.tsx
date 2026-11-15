@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { NavLink, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import type { Session } from "@supabase/supabase-js";
-import { Home as HomeIcon, LogOut, Package, ReceiptText, Store, Tag } from "lucide-react";
+import { CalendarDays, Home as HomeIcon, IdCard, LogOut, Package, ReceiptText, Sprout, Tag } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import logo from "@/assets/kilninit-mark.png";
 import { useAdminData } from "./data";
 import Home from "./Home";
 import Pieces from "./Pieces";
@@ -14,6 +15,9 @@ import Sell from "./Sell";
 import Markets from "./Markets";
 import MarketDetail from "./MarketDetail";
 import Sales from "./Sales";
+import Leads from "./Leads";
+import Guide from "./Guide";
+import Cards from "./Cards";
 
 export default function AdminApp() {
   const [session, setSession] = useState<Session | null>(null);
@@ -70,8 +74,8 @@ function SignIn() {
   return (
     <form onSubmit={submit} className="w-full max-w-sm space-y-6">
       <div>
-        <p className="font-serif text-lg">Kilnin' it</p>
-        <h1 className="font-serif text-4xl font-semibold tracking-tight">Inventory admin</h1>
+        <img src={logo} alt="Kilnin' it" className="mb-3 size-14" />
+        <h1 className="font-display text-4xl font-semibold tracking-tight">Inventory admin</h1>
       </div>
       <div className="space-y-4">
         <div className="space-y-2">
@@ -89,24 +93,31 @@ function SignIn() {
   );
 }
 
-const tabs = [
+type TabDef = { to: string; label: string; icon: typeof HomeIcon; end?: boolean; primary?: boolean; desktopOnly?: boolean };
+const tabs: TabDef[] = [
   { to: "/admin", label: "Home", icon: HomeIcon, end: true },
   { to: "/admin/pieces", label: "Pieces", icon: Package },
   { to: "/admin/sell", label: "Sell", icon: Tag, primary: true },
-  { to: "/admin/markets", label: "Markets", icon: Store },
+  { to: "/admin/events", label: "Events", icon: CalendarDays },
+  // On phones, Leads is reached from Home and Events so the tab bar keeps five buttons.
+  { to: "/admin/leads", label: "Leads", icon: Sprout, desktopOnly: true },
   { to: "/admin/sales", label: "Sales", icon: ReceiptText },
+  // On phones, Cards is reached from the Pieces page.
+  { to: "/admin/cards", label: "Cards", icon: IdCard, desktopOnly: true },
 ];
 
-function Shell() {
+export function Shell() {
   const data = useAdminData();
   const { pathname } = useLocation();
-  useEffect(() => window.scrollTo(0, 0), [pathname]);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
 
   return (
     <div className="min-h-dvh bg-background text-foreground md:grid md:grid-cols-[15rem_1fr]">
       {/* Desktop sidebar */}
       <aside className="sticky top-0 hidden h-dvh flex-col border-r bg-card/60 px-3 py-6 md:flex">
-        <p className="px-3 pb-6 font-serif text-xl font-semibold">Kilnin' it</p>
+        <p className="flex items-center gap-2 px-3 pb-6 font-display text-xl font-semibold"><img src={logo} alt="" className="size-8" />Kilnin' it</p>
         <nav className="space-y-1">
           {tabs.map((t) => (
             <NavLink
@@ -137,9 +148,12 @@ function Shell() {
             <Route index element={<Home {...data} />} />
             <Route path="pieces" element={<Pieces {...data} />} />
             <Route path="sell" element={<Sell {...data} />} />
-            <Route path="markets" element={<Markets {...data} />} />
-            <Route path="markets/:id" element={<MarketDetail {...data} />} />
+            <Route path="events" element={<Markets {...data} />} />
+            <Route path="events/:id" element={<MarketDetail {...data} />} />
             <Route path="sales" element={<Sales {...data} />} />
+            <Route path="leads" element={<Leads {...data} />} />
+            <Route path="guide" element={<Guide />} />
+            <Route path="cards" element={<Cards {...data} />} />
             <Route path="*" element={<Navigate to="/admin" replace />} />
           </Routes>
         )}
@@ -148,14 +162,14 @@ function Shell() {
       {/* Mobile tab bar */}
       <nav className="fixed inset-x-0 bottom-0 z-40 border-t bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
         <div className="mx-auto grid max-w-lg grid-cols-5 items-end px-2">
-          {tabs.map((t) => <TabLink key={t.to} tab={t} />)}
+          {tabs.filter((t) => !t.desktopOnly).map((t) => <TabLink key={t.to} tab={t} />)}
         </div>
       </nav>
     </div>
   );
 }
 
-function TabLink({ tab }: { tab: (typeof tabs)[number] }) {
+function TabLink({ tab }: { tab: TabDef }) {
   if (tab.primary) {
     return (
       <NavLink to={tab.to} className="flex flex-col items-center gap-1 pb-2 text-[11px] font-semibold" >

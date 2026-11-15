@@ -11,7 +11,7 @@ const PieceDetail = () => {
   if (!piece) {
     return (
       <main className="container py-20 text-center">
-        <h1 className="font-serif text-3xl mb-4">Piece not found</h1>
+        <h1 className="font-display text-3xl mb-4">Piece not found</h1>
         <Link to="/" className="text-muted-foreground hover:text-foreground underline">
           Back to gallery
         </Link>
@@ -81,7 +81,7 @@ const PieceDetail = () => {
 
       {/* Title & meta */}
       <ScrollReveal direction="up">
-        <h1 className="font-serif text-3xl md:text-4xl text-foreground mb-4">{piece.name}</h1>
+        <h1 className="font-display text-3xl md:text-4xl text-foreground mb-4">{piece.name}</h1>
         <div className="flex flex-wrap items-center gap-3 mb-8">
           <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
             <BarChart3 size={15} />
@@ -102,7 +102,7 @@ const PieceDetail = () => {
       {/* Story */}
       <ScrollReveal direction="up">
         <section className="mb-12">
-          <h2 className="font-serif text-2xl text-foreground mb-4">The Story</h2>
+          <h2  className="text-2xl text-foreground mb-4">The Story</h2>
           {piece.story.map((p, i) => (
             <p key={i} className="text-muted-foreground leading-relaxed mb-4 last:mb-0">
               {p}
@@ -113,7 +113,7 @@ const PieceDetail = () => {
 
       {/* Tutorial intro */}
       <ScrollReveal direction="up">
-        <p className="font-serif text-xl md:text-2xl text-foreground mb-10 italic">
+        <p  className="text-xl md:text-2xl text-foreground mb-10 italic">
           Looking to create your own version of this piece?
         </p>
       </ScrollReveal>
@@ -121,7 +121,7 @@ const PieceDetail = () => {
       {/* Materials */}
       <ScrollReveal direction="up">
         <section className="mb-12">
-          <h2 className="font-serif text-2xl text-foreground mb-4">Materials Needed</h2>
+          <h2  className="text-2xl text-foreground mb-4">Materials Needed</h2>
           <ul className="grid gap-1.5">
             {piece.materials.map((m, i) => (
               <li key={i} className="flex items-start gap-2 text-muted-foreground">
@@ -136,7 +136,7 @@ const PieceDetail = () => {
       {/* Steps */}
       <section className="mb-12">
         <ScrollReveal direction="up">
-          <h2 className="font-serif text-2xl text-foreground mb-6">Step-by-Step Instructions</h2>
+          <h2  className="text-2xl text-foreground mb-6">Step-by-Step Instructions</h2>
         </ScrollReveal>
         <ol className="space-y-8">
           {piece.steps.map((step, i) => (

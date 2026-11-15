@@ -3,7 +3,7 @@ import ScrollReveal from "@/components/ScrollReveal";
 const PrivacyPolicy = () => (
   <main className="container py-12 md:py-16 max-w-3xl">
     <ScrollReveal direction="up">
-      <h1 className="font-serif text-4xl md:text-5xl text-foreground mb-2">Privacy Policy</h1>
+      <h1 className="font-display text-4xl md:text-5xl text-foreground mb-2">Privacy Policy</h1>
       <p className="text-sm text-muted-foreground mb-10">Last updated: 2nd July 2026</p>
     </ScrollReveal>
 
@@ -15,7 +15,7 @@ const PrivacyPolicy = () => (
         </p>
 
         <section>
-          <h2 className="font-serif text-2xl text-foreground mb-3">
+          <h2  className="text-2xl text-foreground mb-3">
             Information collected via the contact form
           </h2>
           <p>
@@ -35,7 +35,7 @@ const PrivacyPolicy = () => (
         </section>
 
         <section>
-          <h2 className="font-serif text-2xl text-foreground mb-3">Analytics</h2>
+          <h2  className="text-2xl text-foreground mb-3">Analytics</h2>
           <p>
             This site uses Netlify Analytics, which collects aggregate, anonymized traffic
             data (such as page views and visitor counts) directly from server logs. This
@@ -45,7 +45,7 @@ const PrivacyPolicy = () => (
         </section>
 
         <section>
-          <h2 className="font-serif text-2xl text-foreground mb-3">How your information is used</h2>
+          <h2  className="text-2xl text-foreground mb-3">How your information is used</h2>
           <p>
             Contact form submissions are used solely to respond to your inquiry. They are
             not used for marketing, sold, or shared with third parties.
@@ -53,7 +53,7 @@ const PrivacyPolicy = () => (
         </section>
 
         <section>
-          <h2 className="font-serif text-2xl text-foreground mb-3">Your rights</h2>
+          <h2  className="text-2xl text-foreground mb-3">Your rights</h2>
           <p>
             If you'd like your contact form information deleted or have questions about how
             it's used, contact me at{" "}
@@ -68,7 +68,7 @@ const PrivacyPolicy = () => (
         </section>
 
         <section>
-          <h2 className="font-serif text-2xl text-foreground mb-3">Changes to this policy</h2>
+          <h2  className="text-2xl text-foreground mb-3">Changes to this policy</h2>
           <p>This policy may be updated occasionally. Changes will be posted on this page.</p>
         </section>
       </div>

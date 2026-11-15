@@ -16,8 +16,8 @@ export default function Sell(data: AdminData) {
   if (todays) {
     return (
       <div>
-        <PageHeader title="Sell" sub={<>Market day: <Link to={`/admin/markets/${todays.id}`} className="font-medium text-foreground underline underline-offset-4">{todays.name}</Link></>} />
-        <Segmented<"market" | "other"> className="mb-5" value={mode} onChange={setMode} options={[{ value: "market", label: "At the market" }, { value: "other", label: "Other sale" }]} />
+        <PageHeader title="Sell" sub={<>Event day: <Link to={`/admin/events/${todays.id}`} className="font-medium text-foreground underline underline-offset-4">{todays.name}</Link></>} />
+        <Segmented<"market" | "other"> className="mb-5" value={mode} onChange={setMode} options={[{ value: "market", label: "At the event" }, { value: "other", label: "Other sale" }]} />
         {mode === "market" ? <MarketSell market={todays} {...data} /> : <OtherSale {...data} />}
       </div>
     );
@@ -28,8 +28,8 @@ export default function Sell(data: AdminData) {
     <div>
       <PageHeader title="Sell" sub="Record a sale to a friend, a commission or an Instagram order." />
       {next && (
-        <Link to={`/admin/markets/${next.id}`} className="mb-5 flex items-center justify-between gap-3 rounded-2xl border bg-card px-4 py-3 text-sm hover:bg-muted/50">
-          <span>Selling at a market? Open <strong>{next.name}</strong></span>
+        <Link to={`/admin/events/${next.id}`} className="mb-5 flex items-center justify-between gap-3 rounded-2xl border bg-card px-4 py-3 text-sm hover:bg-muted/50">
+          <span>Selling at an event? Open <strong>{next.name}</strong></span>
           <ChevronRight className="size-4 text-muted-foreground" />
         </Link>
       )}
@@ -42,7 +42,7 @@ function OtherSale({ items }: AdminData) {
   const [query, setQuery] = useState("");
   const [selling, setSelling] = useState<Item | null>(null);
   const q = query.trim().toLowerCase();
-  const available = items.filter((i) => i.status === "available" && (!q || `${i.label} ${i.designs?.name ?? ""}`.toLowerCase().includes(q)));
+  const available = items.filter((i) => i.status === "available" && (!q || `${i.label} ${i.categories?.name ?? ""}`.toLowerCase().includes(q)));
 
   return (
     <div className="space-y-3">
@@ -67,7 +67,7 @@ function OtherSale({ items }: AdminData) {
                 <Thumb item={i} className="size-12" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">{i.label}</p>
-                  <p className="truncate text-xs text-muted-foreground">{i.designs?.name}</p>
+                  <p className="truncate text-xs text-muted-foreground">{i.categories?.name}</p>
                 </div>
                 <span className="tabular text-sm font-semibold">{eur(i.price_eur)}</span>
               </button>

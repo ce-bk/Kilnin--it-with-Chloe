@@ -40,7 +40,7 @@ const Index = () => {
         {/* Hero text */}
         <div className="relative z-10 text-center px-6 max-w-2xl">
           <ScrollReveal direction="up">
-            <h1 className="font-serif text-4xl md:text-6xl text-background mb-4">
+            <h1 className="font-display text-4xl md:text-6xl text-background mb-4">
               The Collection
             </h1>
           </ScrollReveal>

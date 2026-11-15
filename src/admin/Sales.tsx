@@ -1,7 +1,7 @@
 import type { Channel } from "@/lib/supabase";
 import type { AdminData } from "./AdminApp";
 import { channelLabel, eur, formatDate, sum, localDay } from "./data";
-import { Empty, PageHeader, Thumb } from "./ui";
+import { Empty, PageHeader, SoldPrice, Thumb } from "./ui";
 
 const CHANNELS: Channel[] = ["market", "direct", "online"];
 
@@ -25,7 +25,7 @@ export default function Sales({ sales, items, markets }: AdminData) {
         {byChannel.map(({ c, list }) => (
           <div key={c} className="p-3 sm:p-4">
             <p className="text-xs font-medium text-muted-foreground">{channelLabel[c]}</p>
-            <p className="tabular mt-1 font-serif text-xl font-semibold sm:text-2xl">{eur(sum(list))}</p>
+            <p className="tabular mt-1 font-display text-xl font-semibold sm:text-2xl">{eur(sum(list))}</p>
             <p className="text-xs text-muted-foreground">{list.length} {list.length === 1 ? "sale" : "sales"}</p>
           </div>
         ))}
@@ -49,10 +49,10 @@ export default function Sales({ sales, items, markets }: AdminData) {
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium">{item?.label ?? "Piece"}</p>
                       <p className="truncate text-xs text-muted-foreground">
-                        {s.market_id ? marketById.get(s.market_id)?.name ?? "Market" : channelLabel[s.channel]} · <span className="capitalize">{s.method}</span>
+                        {s.market_id ? marketById.get(s.market_id)?.name ?? "Event" : channelLabel[s.channel]} · <span className="capitalize">{s.method}</span>
                       </p>
                     </div>
-                    <p className="tabular text-sm font-semibold">{eur(s.price_eur)}</p>
+                    <p className="text-sm font-semibold"><SoldPrice paid={s.price_eur} listed={item?.price_eur} /></p>
                   </li>
                 );
               })}

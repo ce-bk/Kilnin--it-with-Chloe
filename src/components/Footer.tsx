@@ -1,9 +1,13 @@
 import { Link } from "react-router-dom";
+import logo from "@/assets/kilninit-mark.png";
 
 const Footer = () => (
   <footer className="border-t border-border bg-muted/50 py-10">
     <div className="container flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-      <p className="font-serif text-base text-foreground">Kilnin' It with Chloe</p>
+      <p className="flex items-center gap-2 font-display text-base text-foreground">
+        <img src={logo} alt="" width={28} height={28} className="size-7" />
+        Kilnin' It with Chloe
+      </p>
       <nav className="flex gap-6">
         <Link to="/" className="hover:text-foreground transition-colors">Gallery</Link>
         <Link to="/about" className="hover:text-foreground transition-colors">About</Link>

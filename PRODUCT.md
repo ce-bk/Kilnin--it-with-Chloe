@@ -14,7 +14,7 @@ web
 The public site showcases finished pieces with their stories, materials and process. The private Inventory admin (`/admin`) is the master record of every piece Chloe has made and every sale: what exists, what it costs, where it went and for how much. Success: she can prep for a market, sell quickly at the stall, and see afterwards what sold, where and through which channel, without spreadsheets.
 
 ## Positioning
-A shop manager in the spirit of Shopify or Etsy's store manager, but tailored to a single maker's unique handmade pieces. Items are individual objects (often one of a kind, sometimes a set sold together) grouped under designs/collections, not SKUs with stock counts. It is the master record and may later connect to other tools by API; for now it is custom and self-contained.
+A shop manager in the spirit of Shopify or Etsy's store manager, but tailored to a single maker's unique handmade pieces. Items are individual objects (often one of a kind, sometimes a set sold together, occasionally several identical units with a quantity) grouped by category, not SKUs. It is the master record and may later connect to other tools by API; for now it is custom and self-contained.
 
 ## Operating Context
 - **Markets**: craft markets Chloe attends (first: 28 Nov 2026, goal €135). Per market: a packing list of pieces brought, fast sale recording at the stall, then results (earned vs goal, sold vs came home).
@@ -25,15 +25,16 @@ A shop manager in the spirit of Shopify or Etsy's store manager, but tailored to
 ## Capabilities and Constraints
 - Stack: React + TypeScript + Vite, shadcn/ui, Tailwind, React Query; Supabase (Postgres + auth) for data; Netlify hosting. Schema changes deploy via the Supabase GitHub integration on merge to `main`; seed data is pasted manually.
 - Single owner account; public sign-ups disabled; data readable only when signed in. Admin pages are `noindex` and not linked from the public nav.
-- Photos: reuse portfolio photos only (via the design's `site_piece_id` → `src/data/pieces.ts` images); pieces without a portfolio entry get a placeholder. No photo uploads for now.
+- Photos: each piece can have its own photo, uploaded from the admin (private Supabase Storage bucket `piece-photos`, shown via signed links). Without one, the linked portfolio photo (`items.site_piece_id` → `src/data/pieces.ts`) is used, then a letter placeholder. Source photos live in Google Drive ("Ceramics" folder → one subfolder per category → one per piece); the app does not read Drive.
 - Price only; no cost or profit tracking for now (may be added later).
-- Terminology: **piece** (one sellable item or set), **design** (collection a piece belongs to), **market**, **sale**, **channel** (Market / Direct / Online).
+- Terminology: **piece** (one sellable item or set), **category** (type of object: Lamps, Cups & mugs, Bowls…), **event** (a market, fair or pop-up; stored in the `markets` table), **sale**, **channel** (Event / Direct / Online).
 
 ## Brand Commitments
-Name: "Kilnin' It with Chloe" / kilninit. Existing site palette: bright yellow primary, dusty mauve secondary, soft lilac accent, warm cream background; Playfair Display type. Warm, personal, handmade voice.
+Name: "Kilnin' It with Chloe" / kilninit. Existing site palette: bright yellow primary, dusty mauve secondary, soft lilac accent, warm cream background. Type: Playfair Display for titles (page h1s, wordmark, headline figures); Hanken Grotesk for other headings and body text (chosen 2026-11-15; Bricolage Grotesque, Inter and Instrument Sans were tried and rejected). Warm, personal, handmade voice.
 
 ## Evidence on Hand
-- Starting inventory: 20 designs, 46 pieces (`supabase/seed/market-2026-11-28.sql`); some counts are estimates marked "check".
+- Starting inventory: 46 pieces (`supabase/seed/market-2026-11-28.sql`), since grouped by category; the 6 page holders are now one piece with quantity 6. Some counts are estimates marked "check".
+- Brand material (logo, stickers, Instagram highlight covers, the piece card that goes with each sale) in `brand/`.
 - Portfolio pieces and photos in `src/data/pieces.ts` and `src/assets/`.
 - No sales history yet. Do not fabricate sales, customers or figures.
 

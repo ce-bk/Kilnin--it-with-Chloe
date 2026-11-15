@@ -21,10 +21,10 @@ export default function Markets({ markets, sales, marketItems }: AdminData) {
     const d = new Date(`${m.date}T00:00:00`);
     return (
       <li key={m.id}>
-        <Link to={`/admin/markets/${m.id}`} className="flex items-center gap-4 px-4 py-3 hover:bg-muted/50">
+        <Link to={`/admin/events/${m.id}`} className="flex items-center gap-4 px-4 py-3 hover:bg-muted/50">
           <div className="w-12 shrink-0 text-center">
             <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{d.toLocaleDateString("en-GB", { month: "short" })}</p>
-            <p className="tabular font-serif text-2xl font-semibold leading-none">{d.getDate()}</p>
+            <p className="tabular font-display text-2xl font-semibold leading-none">{d.getDate()}</p>
           </div>
           <div className="min-w-0 flex-1">
             <p className="truncate font-medium">{m.name}</p>
@@ -46,21 +46,25 @@ export default function Markets({ markets, sales, marketItems }: AdminData) {
   return (
     <div className="space-y-8">
       <PageHeader
-        title="Markets"
-        sub={markets.length ? `${markets.length} ${markets.length === 1 ? "market" : "markets"} · ${eur(sum(sales.filter((s) => s.market_id)))} earned at markets` : undefined}
-        action={<Button className="h-11 rounded-xl" onClick={() => setCreating(true)}><Plus /> New market</Button>}
+        title="Events"
+        sub={markets.length ? `${markets.length} ${markets.length === 1 ? "event" : "events"} · ${eur(sum(sales.filter((s) => s.market_id)))} earned at events` : undefined}
+        action={<Button className="h-11 rounded-xl" onClick={() => setCreating(true)}><Plus /> New event</Button>}
       />
+      <Link to="/admin/leads" className="flex min-h-12 items-center justify-between gap-3 rounded-xl bg-muted px-4 text-sm hover:bg-muted/70">
+        <span>Looking for new events or collaborations? <strong>Leads</strong></span>
+        <ChevronRight className="size-4 text-muted-foreground" />
+      </Link>
       <section>
-        <h2 className="mb-2 font-serif text-xl font-semibold">Coming up</h2>
-        {upcoming.length ? <ul className="divide-y rounded-2xl border bg-card">{upcoming.map(row)}</ul> : <Empty>No markets planned. Add one to start packing.</Empty>}
+        <h2 className="mb-2 text-xl font-semibold">Coming up</h2>
+        {upcoming.length ? <ul className="divide-y rounded-2xl border bg-card">{upcoming.map(row)}</ul> : <Empty>No events planned. Add one to start packing.</Empty>}
       </section>
       {past.length > 0 && (
         <section>
-          <h2 className="mb-2 font-serif text-xl font-semibold">Past</h2>
+          <h2 className="mb-2 text-xl font-semibold">Past</h2>
           <ul className="divide-y rounded-2xl border bg-card">{past.map(row)}</ul>
         </section>
       )}
-      <MarketSheet market={null} open={creating} onClose={() => setCreating(false)} onSaved={(id) => navigate(`/admin/markets/${id}?tab=pack`)} />
+      <MarketSheet market={null} open={creating} onClose={() => setCreating(false)} onSaved={(id) => navigate(`/admin/events/${id}?tab=pack`)} />
     </div>
   );
 }
