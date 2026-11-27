@@ -13,15 +13,50 @@ import {
 } from "./data";
 import { Status, Thumb } from "./ui";
 
+/**
+ * How much of the screen the on-screen keyboard covers, and where the visible area starts.
+ * iPhone Safari doesn't shrink the page for the keyboard, so sheets pinned to the bottom
+ * would sit behind it; we lift them above it instead.
+ */
+function useKeyboard(active: boolean) {
+  const [kb, setKb] = useState<{ inset: number; height: number } | null>(null);
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!active || !vv) return;
+    const update = () => {
+      const inset = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      setKb(inset > 80 ? { inset, height: vv.height } : null);
+    };
+    update();
+    vv.addEventListener("resize", update);
+    vv.addEventListener("scroll", update);
+    return () => {
+      vv.removeEventListener("resize", update);
+      vv.removeEventListener("scroll", update);
+      setKb(null);
+    };
+  }, [active]);
+  return kb;
+}
+
 export function Sheet({ open, onClose, title, description, children }: { open: boolean; onClose: () => void; title: ReactNode; description?: ReactNode; children: ReactNode }) {
+  const kb = useKeyboard(open);
   return (
-    <Drawer open={open} onOpenChange={(o) => !o && onClose()} shouldScaleBackground={false}>
-      <DrawerContent className="mx-auto max-h-[92dvh] max-w-lg">
+    <Drawer open={open} onOpenChange={(o) => !o && onClose()} shouldScaleBackground={false} repositionInputs={false}>
+      <DrawerContent
+        className="mx-auto max-h-[92dvh] max-w-lg"
+        style={kb ? { bottom: kb.inset, maxHeight: kb.height - 12 } : undefined}
+        onFocusCapture={(e) => {
+          // Once the keyboard is up, bring the box being typed in into view.
+          const el = e.target as HTMLElement;
+          if (el.matches("input, textarea, select")) setTimeout(() => el.scrollIntoView({ block: "nearest", behavior: "smooth" }), 350);
+        }}
+      >
         <DrawerHeader className="text-left">
           <DrawerTitle className="font-display text-2xl">{title}</DrawerTitle>
           {description && <DrawerDescription>{description}</DrawerDescription>}
         </DrawerHeader>
-        <div className="overflow-y-auto px-4 pb-[max(1rem,env(safe-area-inset-bottom))]">{children}</div>
+        <div className="scroll-pb-6 overflow-y-auto px-4 pb-[max(1.5rem,calc(env(safe-area-inset-bottom)+1rem))]">{children}</div>
       </DrawerContent>
     </Drawer>
   );
