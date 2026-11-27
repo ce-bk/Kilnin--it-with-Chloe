@@ -198,7 +198,7 @@ function PaymentSign({ revolut, bizum, qrImage }: { revolut: string; bizum: stri
             <p className="font-display" style={{ fontSize: mm(6.5), lineHeight: 1.1, marginTop: mm(1) }}>{spacedPhone(bizum)}</p>
           </>
         )}
-        <p style={{ fontSize: mm(2.8), color: MAUVE, marginTop: mm(3.5) }}>Card and cash welcome too</p>
+        <p style={{ fontSize: mm(2.8), color: MAUVE, marginTop: mm(3.5) }}>Cash is welcome also</p>
       </div>
     </div>
   );

@@ -34,7 +34,7 @@ type Section = "pieces" | "payment" | "brand";
 
 const sections: { value: Section; label: string; sub: string }[] = [
   { value: "pieces", label: "Piece cards", sub: "The little card that goes with each piece. Front: its name. Back: its photo." },
-  { value: "payment", label: "Payment", sub: "A table sign so people can pay you: Revolut QR code, Bizum number, card and cash." },
+  { value: "payment", label: "Payment", sub: "A table sign so people can pay you: Revolut QR code, Bizum number, and cash." },
   { value: "brand", label: "Brand", sub: "A card to hand out, with a QR code to your Instagram and your website." },
 ];
 
