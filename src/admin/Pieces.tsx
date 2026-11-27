@@ -8,7 +8,7 @@ import { eur, groupByCategory, salesByItem, unitsLeft } from "./data";
 import { PhotosSheet, PieceSheet, SaleSheet } from "./sheets";
 import { Empty, PageHeader, Segmented, SoldPrice, Status, Thumb } from "./ui";
 
-type Filter = "all" | "available" | "sold" | "not_for_sale" | "unpriced" | "check";
+type Filter = "all" | "available" | "sold" | "not_for_sale" | "unpriced";
 
 const filters: { value: Filter; label: string }[] = [
   { value: "available", label: "In stock" },
@@ -16,7 +16,7 @@ const filters: { value: Filter; label: string }[] = [
   { value: "all", label: "All" },
 ];
 
-const extra: Record<string, string> = { unpriced: "Needs a price", check: "Questions to answer", not_for_sale: "Not for sale" };
+const extra: Record<string, string> = { unpriced: "Needs a price", not_for_sale: "Not for sale" };
 
 export default function Pieces({ items, categories, sales, markets }: AdminData) {
   const [params, setParams] = useSearchParams();
@@ -35,7 +35,6 @@ export default function Pieces({ items, categories, sales, markets }: AdminData)
     switch (filter) {
       case "all": return true;
       case "unpriced": return i.status === "available" && i.price_eur == null;
-      case "check": return i.status === "available" && !!i.notes?.toLowerCase().includes("check");
       default: return i.status === filter;
     }
   });
@@ -70,10 +69,7 @@ export default function Pieces({ items, categories, sales, markets }: AdminData)
         </label>
         {extra[filter] ? (
           <div className="flex items-center justify-between rounded-xl bg-muted px-3 py-2 text-sm">
-            <span>
-              Showing: <strong>{extra[filter]}</strong>
-              {filter === "check" && <span className="block text-xs text-muted-foreground">Each one has a note with the word “check”. Sort it out, then take “check” out of the note.</span>}
-            </span>
+            <span>Showing: <strong>{extra[filter]}</strong></span>
             <button className="font-medium underline underline-offset-4" onClick={() => setParams({})}>Clear</button>
           </div>
         ) : (
