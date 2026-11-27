@@ -86,6 +86,12 @@ export default function Pieces({ items, categories, sales, markets }: AdminData)
         ) : (
           <Segmented value={filter} onChange={(v) => setParams(v === "available" ? {} : { filter: v })} options={filters} />
         )}
+        {shown.length > 0 && (
+          <div className="flex justify-end gap-3 px-3 text-xs font-medium text-muted-foreground" aria-hidden>
+            <span className="w-16 text-right">Valued price</span>
+            <span className="w-16 text-right">Market price</span>
+          </div>
+        )}
       </div>
 
       {shown.length === 0 ? (
@@ -114,15 +120,11 @@ export default function Pieces({ items, categories, sales, markets }: AdminData)
                             {qty > 1 && <span className="tabular text-xs text-muted-foreground">{unitsLeft(i, bySale)} of {qty} left</span>}
                           </div>
                         </div>
-                        <p className={`tabular text-sm font-semibold ${i.price_eur == null && !sale ? "text-muted-foreground" : ""}`}>
-                          {sale ? <SoldPrice paid={sale.price_eur} listed={i.price_eur} /> : i.price_eur == null ? "No price" : (
-                            <span className="whitespace-nowrap">
-                              {valued != null && valued !== Number(i.price_eur) && (
-                                <span className="mr-1.5 text-[0.8em] font-normal text-muted-foreground" aria-label={`valued at ${eur(valued)},`}>{eur(valued)}</span>
-                              )}
-                              <span className="text-foreground">{eur(i.price_eur)}</span>
-                            </span>
-                          )}
+                        <p className="tabular w-16 text-right text-sm" aria-label={valued != null ? `valued at ${eur(valued)}` : "no valued price"}>
+                          {valued != null ? eur(valued) : <span className="text-muted-foreground">—</span>}
+                        </p>
+                        <p className={`tabular min-w-16 text-right text-sm font-semibold ${i.price_eur == null && !sale ? "text-muted-foreground" : ""}`}>
+                          {sale ? <SoldPrice paid={sale.price_eur} listed={i.price_eur} /> : i.price_eur == null ? "No price" : eur(i.price_eur)}
                         </p>
                       </button>
                     </li>

@@ -276,7 +276,7 @@ export function PieceSheet({
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-2">
-            <Label htmlFor="p-price">Price</Label>
+            <Label htmlFor="p-price">Market price</Label>
             <Input id="p-price" inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="€" className="tabular h-12" />
           </div>
           <div className="space-y-2">
@@ -286,7 +286,7 @@ export function PieceSheet({
         </div>
         {parsed === "invalid" || parsedValued === "invalid"
           ? <p className="-mt-2 text-sm text-destructive">Enter a number, like 18 or 12.50</p>
-          : <p className="-mt-2 text-xs text-muted-foreground">Valued price: what it's worth with your time counted. Shown in grey next to the price.</p>}
+          : <p className="-mt-2 text-xs text-muted-foreground">Market price: what you charge. Valued price: what it's worth with your time counted.</p>}
         <div className="space-y-2">
           <Label htmlFor="p-qty">How many</Label>
           <Input id="p-qty" type="number" inputMode="numeric" min={1} step={1} value={quantity} onChange={(e) => setQuantity(e.target.value)} className="tabular h-12 w-28" />
