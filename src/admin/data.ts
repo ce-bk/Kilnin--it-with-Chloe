@@ -358,6 +358,20 @@ export const salesByItem = (sales: Sale[]) => {
 export const unitsLeft = (item: Item, bySale: Map<string, Sale[]>) =>
   Math.max(0, (item.quantity ?? 1) - (bySale.get(item.id)?.length ?? 0));
 
+/**
+ * An event's lists. Pack: every piece in stock, plus anything already sold at this event.
+ * Sell: what's ticked on Pack and still in stock, plus anything already sold at this event.
+ * So nothing can be on Sell that isn't on Pack.
+ */
+export function eventLists(items: Item[], packedIds: Set<string>, marketId: string, sales: Sale[]) {
+  const allSales = salesByItem(sales);
+  const here = salesByItem(sales.filter((s) => s.market_id === marketId));
+  const inStock = (i: Item) => i.status === "available" && unitsLeft(i, allSales) > 0;
+  const pack = items.filter((i) => inStock(i) || here.has(i.id));
+  const sell = pack.filter((i) => here.has(i.id) || packedIds.has(i.id));
+  return { pack, sell };
+}
+
 /** Items grouped by category, in the categories' own order. */
 export function groupByCategory(items: Item[]): [string, Item[]][] {
   const groups = new Map<string, { sort: number; list: Item[] }>();
