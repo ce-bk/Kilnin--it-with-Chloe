@@ -228,7 +228,7 @@ export function BrandCards() {
   const st = styles[(style as BrandStyle) in styles ? (style as BrandStyle) : "qr"];
   const isQr = st === styles.qr;
   const perSheet = st.cols * st.rows;
-  const front = isQr ? <BrandCard handle={handle} website={withoutProtocol(website)} /> : <SquareFront />;
+  const front = isQr ? <BrandCard handle={handle} website={withoutProtocol(website)} /> : <SquareFront website={withoutProtocol(website)} />;
 
   return (
     <div className="space-y-4">
@@ -247,12 +247,10 @@ export function BrandCards() {
         ))}
       </div>
 
-      {isQr && (
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Field id="brand-ig" label="Instagram" value={instagram} onChange={setInstagram} placeholder="kilninitwithchloe" hint="The QR code opens your Instagram." />
-          <Field id="brand-web" label="Website" value={website} onChange={setWebsite} placeholder="kilninit.com" inputMode="url" />
-        </div>
-      )}
+      <div className="grid gap-3 sm:grid-cols-2">
+        {isQr && <Field id="brand-ig" label="Instagram" value={instagram} onChange={setInstagram} placeholder="kilninitwithchloe" hint="The QR code opens your Instagram." />}
+        <Field id="brand-web" label="Website" value={website} onChange={setWebsite} placeholder="kilninit.com" inputMode="url" />
+      </div>
 
       <div className="flex gap-4 overflow-x-auto pb-1">
         <div className="shrink-0"><p className="mb-1 text-xs text-muted-foreground">Front</p>{front}</div>
@@ -306,9 +304,14 @@ function BrandCard({ handle, website }: { handle: string; website: string }) {
   );
 }
 
-/** Chloe's square design: logo, name and Instagram handle. */
-function SquareFront() {
-  return <img src={brandFront} alt="" style={{ width: `${SQ}mm`, height: `${SQ}mm`, display: "block" }} className="shrink-0" />;
+/** Chloe's square design (logo, name and Instagram handle), with the website added underneath. */
+function SquareFront({ website }: { website: string }) {
+  return (
+    <div style={{ width: `${SQ}mm`, height: `${SQ}mm` }} className="relative shrink-0">
+      <img src={brandFront} alt="" className="block h-full w-full" />
+      {website && <p style={{ position: "absolute", left: 0, right: 0, top: `${SQ * 0.865}mm`, fontSize: "2.4mm", color: INK, textAlign: "center" }}>{website}</p>}
+    </div>
+  );
 }
 
 /**
