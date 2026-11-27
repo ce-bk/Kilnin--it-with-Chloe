@@ -105,7 +105,11 @@ function Pack({ market, ...data }: Props) {
 
       {groups.map(([category, list]) => (
         <section key={category}>
-          <h2 className="mb-2 px-1 text-sm font-semibold">{category}</h2>
+          <div className="mb-2 flex items-end gap-3 pl-1 pr-[13px]">
+            <h2 className="flex-1 text-sm font-semibold">{category}</h2>
+            <span className="w-14 text-right text-xs leading-tight text-muted-foreground" aria-hidden>Valued price</span>
+            <span className="w-20 text-right text-xs leading-tight text-muted-foreground" aria-hidden>Market price</span>
+          </div>
           <ul className="divide-y overflow-hidden rounded-2xl border bg-card">
             {list.map((i) => {
               const n = soldHere(i);
@@ -131,9 +135,10 @@ function Pack({ market, ...data }: Props) {
                     {(i.quantity ?? 1) > 1 && <span className="tabular text-muted-foreground"> × {i.quantity}</span>}
                     {n > 0 && <span className="text-muted-foreground"> · {(i.quantity ?? 1) > 1 ? `${n} ` : ""}sold here</span>}
                   </p>
-                  {i.valued_eur != null && (
-                    <span className="tabular shrink-0 text-sm text-muted-foreground" aria-label={`valued at ${eur(i.valued_eur)}`}>{eur(i.valued_eur)}</span>
-                  )}
+                  <span className="tabular w-14 shrink-0 text-right text-sm text-muted-foreground" aria-label={i.valued_eur != null ? `valued at ${eur(i.valued_eur)}` : "no valued price"}>
+                    {i.valued_eur != null ? eur(i.valued_eur) : "—"}
+                  </span>
+                  {i.status !== "available" && <span className="w-20 shrink-0" aria-hidden />}
                   {i.status === "available" && (
                     <input
                       aria-label={`Price for ${i.label}`}
@@ -141,7 +146,7 @@ function Pack({ market, ...data }: Props) {
                       defaultValue={i.price_eur ?? ""}
                       inputMode="decimal"
                       placeholder="€"
-                      className="tabular h-10 w-20 rounded-lg border border-input bg-background px-2 text-right text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="tabular h-10 w-20 shrink-0 rounded-lg border border-input bg-background px-2 text-right text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       onBlur={(e) => {
                         const p = parsePrice(e.target.value);
                         if (p === "invalid") { e.target.value = i.price_eur?.toString() ?? ""; return; }
