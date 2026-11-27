@@ -11,11 +11,11 @@ import { groupByCategory, salesByItem, unitsLeft, useSaveItem } from "./data";
 import { Empty, PageHeader, Segmented, Thumb } from "./ui";
 import { BrandCards, PaymentSigns } from "./StallCards";
 
-// Business-card size (2 × 3.5 in), 9 to an A4 sheet. Matches brand/piece-cards/.
-const CARD_W = 50.8; // mm
-const CARD_H = 88.9;
+// 4:5 (5.6 × 7 cm), 12 to an A4 sheet.
+const CARD_W = 56; // mm
+const CARD_H = 70;
 const COLS = 3;
-const ROWS = 3;
+const ROWS = 4;
 const PER_SHEET = COLS * ROWS;
 
 const INK = "#3a2d22";
@@ -35,7 +35,7 @@ type Section = "pieces" | "payment" | "brand";
 const sections: { value: Section; label: string; sub: string }[] = [
   { value: "pieces", label: "Piece cards", sub: "The little card that goes with each piece. Front: its name. Back: its photo." },
   { value: "payment", label: "Payment", sub: "A table sign so people can pay you: Revolut QR code, Bizum number, and cash." },
-  { value: "brand", label: "Brand", sub: "A card to hand out, with a QR code to your Instagram and your website." },
+  { value: "brand", label: "Brand", sub: "Cards to hand out: tall with a QR code to your Instagram, or square. Both have your clay design on the back." },
 ];
 
 export default function Cards(data: AdminData) {
@@ -159,11 +159,11 @@ function PieceCards({ items, sales }: AdminData) {
 function CardFront({ name }: { name: string }) {
   return (
     <div style={{ width: `${CARD_W}mm`, height: `${CARD_H}mm`, background: CREAM, color: INK }} className="relative flex flex-col items-center overflow-hidden text-center">
-      <img src={mark} alt="" style={{ width: "13mm", marginTop: "22mm" }} />
-      <p className="font-display" style={{ fontSize: "8.4mm", lineHeight: 1, marginTop: "6.5mm" }}>Kilnin' it</p>
+      <img src={mark} alt="" style={{ width: "12mm", marginTop: "14mm" }} />
+      <p className="font-display" style={{ fontSize: "8.4mm", lineHeight: 1, marginTop: "5mm" }}>Kilnin' it</p>
       <p className="font-display" style={{ fontSize: "3mm", marginTop: "1.6mm" }}>with Chloe</p>
-      <p style={{ fontSize: "2.5mm", position: "absolute", top: "69mm", left: "3mm", right: "3mm", textWrap: "balance" }}>{name} | <span style={{ whiteSpace: "nowrap" }}>One of a kind</span></p>
-      <p style={{ fontSize: "2.2mm", color: MAUVE, position: "absolute", top: "77.5mm", left: 0, right: 0 }}>@kilninitwithchloe</p>
+      <p style={{ fontSize: "2.5mm", position: "absolute", top: "51.5mm", left: "4mm", right: "4mm", textWrap: "balance" }}>{name} | <span style={{ whiteSpace: "nowrap" }}>One of a kind</span></p>
+      <p style={{ fontSize: "2.2mm", color: MAUVE, position: "absolute", top: "61mm", left: 0, right: 0 }}>@kilninitwithchloe</p>
     </div>
   );
 }

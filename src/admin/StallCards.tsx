@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import mark from "@/assets/kilninit-mark.png";
+import brandFront from "@/assets/brand-card-front.png";
+import brandBack from "@/assets/brand-card-back.jpg";
 
 // Brand colours, as on the piece cards.
 const INK = "#3a2d22";
@@ -204,46 +206,81 @@ function PaymentSign({ revolut, bizum, qrImage }: { revolut: string; bizum: stri
   );
 }
 
-// ---------------------------------------------------------------- Brand card (business card, 9 per A4)
+// ---------------------------------------------------------------- Brand cards (two-sided)
 
-const CARD_W = 50.8; // mm
+const CARD_W = 50.8; // mm, business card, 9 per A4
 const CARD_H = 88.9;
+const SQ = 55; // mm, square card, 15 per A4
+
+type BrandStyle = "qr" | "square";
+
+const styles: Record<BrandStyle, { label: string; w: number; h: number; cols: number; rows: number }> = {
+  qr: { label: "With Instagram QR code", w: CARD_W, h: CARD_H, cols: 3, rows: 3 },
+  square: { label: "Square", w: SQ, h: SQ, cols: 3, rows: 5 },
+};
 
 export function BrandCards() {
   const [instagram, setInstagram] = useRemembered("instagram", "kilninitwithchloe");
   const [website, setWebsite] = useRemembered("website", "kilninit.com");
+  const [style, setStyle] = useRemembered("brand-style", "qr");
   const [sheets, setSheets] = useState(1);
   const handle = instagram.trim().replace(/^@/, "").replace(/^https?:\/\/(www\.)?instagram\.com\//, "").replace(/\/$/, "");
+  const st = styles[(style as BrandStyle) in styles ? (style as BrandStyle) : "qr"];
+  const isQr = st === styles.qr;
+  const perSheet = st.cols * st.rows;
+  const front = isQr ? <BrandCard handle={handle} website={withoutProtocol(website)} /> : <SquareFront website={withoutProtocol(website)} />;
 
   return (
     <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="Card style">
+        {(Object.keys(styles) as BrandStyle[]).map((k) => (
+          <button
+            key={k}
+            type="button"
+            role="radio"
+            aria-checked={st === styles[k]}
+            onClick={() => setStyle(k)}
+            className={`min-h-12 rounded-xl border px-3 text-sm font-medium ${st === styles[k] ? "border-primary bg-primary text-primary-foreground" : "border-input bg-card hover:bg-muted"}`}
+          >
+            {styles[k].label}
+          </button>
+        ))}
+      </div>
+
       <div className="grid gap-3 sm:grid-cols-2">
-        <Field id="brand-ig" label="Instagram" value={instagram} onChange={setInstagram} placeholder="kilninitwithchloe" hint="The QR code opens your Instagram." />
+        {isQr && <Field id="brand-ig" label="Instagram" value={instagram} onChange={setInstagram} placeholder="kilninitwithchloe" hint="The QR code opens your Instagram." />}
         <Field id="brand-web" label="Website" value={website} onChange={setWebsite} placeholder="kilninit.com" inputMode="url" />
       </div>
 
-      <div className="overflow-x-auto pb-1">
-        <BrandCard handle={handle} website={withoutProtocol(website)} />
+      <div className="flex gap-4 overflow-x-auto pb-1">
+        <div className="shrink-0"><p className="mb-1 text-xs text-muted-foreground">Front</p>{front}</div>
+        <div className="shrink-0"><p className="mb-1 text-xs text-muted-foreground">Back</p><BrandBack w={st.w} h={st.h} /></div>
       </div>
 
-      <Stepper label="How many sheets" value={sheets} onChange={setSheets} min={1} max={5} unit={`× 9`} />
-      <PrintHelp action={<Button className="h-11 w-full rounded-xl sm:w-auto" disabled={!handle} onClick={() => window.print()}><Printer /> Print {sheets * 9} brand cards</Button>}>
-        Business-card size, the same as the piece cards: 9 to an A4 sheet, one side only. In the print window choose <strong className="text-foreground">A4</strong> and scale <strong className="text-foreground">100% / Actual size</strong>. Cut along the marks.
+      <Stepper label="How many sheets" value={sheets} onChange={setSheets} min={1} max={5} unit={`× ${perSheet}`} />
+      <PrintHelp action={<Button className="h-11 w-full rounded-xl sm:w-auto" disabled={isQr && !handle} onClick={() => window.print()}><Printer /> Print {sheets * perSheet} cards</Button>}>
+        {isQr ? "Business-card size" : `Square, ${SQ / 10} × ${SQ / 10} cm`}: {perSheet} to an A4 sheet, printed both sides. In the print window choose <strong className="text-foreground">A4</strong>, scale <strong className="text-foreground">100% / Actual size</strong>, and <strong className="text-foreground">two-sided, flip on long edge</strong>. Cut along the marks.
       </PrintHelp>
 
       <PrintPortal>
-        {Array.from({ length: sheets }, (_, p) => (
-          <div key={p} className="card-sheet">
-            <div style={{ position: "absolute", left: `${(210 - 3 * CARD_W) / 2}mm`, top: `${(297 - 3 * CARD_H) / 2}mm`, width: `${3 * CARD_W}mm`, height: `${3 * CARD_H}mm` }}>
-              {Array.from({ length: 9 }, (_, k) => (
-                <div key={k} style={{ position: "absolute", left: `${(k % 3) * CARD_W}mm`, top: `${Math.floor(k / 3) * CARD_H}mm` }}>
-                  <BrandCard handle={handle} website={withoutProtocol(website)} />
-                </div>
-              ))}
-              <CropMarks cols={3} rows={3} w={CARD_W} h={CARD_H} />
+        {Array.from({ length: sheets }, (_, p) =>
+          [false, true].map((back) => (
+            <div key={`${p}-${back}`} className="card-sheet">
+              <div style={{ position: "absolute", left: `${(210 - st.cols * st.w) / 2}mm`, top: `${(297 - st.rows * st.h) / 2}mm`, width: `${st.cols * st.w}mm`, height: `${st.rows * st.h}mm` }}>
+                {Array.from({ length: perSheet }, (_, k) => {
+                  // Backs are mirrored left-to-right so they line up with their fronts when printed two-sided.
+                  const col = back ? st.cols - 1 - (k % st.cols) : k % st.cols;
+                  return (
+                    <div key={k} style={{ position: "absolute", left: `${col * st.w}mm`, top: `${Math.floor(k / st.cols) * st.h}mm` }}>
+                      {back ? <BrandBack w={st.w} h={st.h} /> : front}
+                    </div>
+                  );
+                })}
+                <CropMarks cols={st.cols} rows={st.rows} w={st.w} h={st.h} />
+              </div>
             </div>
-          </div>
-        ))}
+          )),
+        )}
       </PrintPortal>
     </div>
   );
@@ -263,6 +300,37 @@ function BrandCard({ handle, website }: { handle: string; website: string }) {
       )}
       <p style={{ fontSize: mm(2.4), color: MAUVE, position: "absolute", top: mm(74), left: 0, right: 0 }}>@{handle}</p>
       {website && <p style={{ fontSize: mm(2.3), position: "absolute", top: mm(78.5), left: 0, right: 0 }}>{website}</p>}
+    </div>
+  );
+}
+
+/** Chloe's square design (logo, name and Instagram handle), with the website added underneath. */
+function SquareFront({ website }: { website: string }) {
+  return (
+    <div style={{ width: `${SQ}mm`, height: `${SQ}mm` }} className="relative shrink-0">
+      <img src={brandFront} alt="" className="block h-full w-full" />
+      {website && <p style={{ position: "absolute", left: 0, right: 0, top: `${SQ * 0.865}mm`, fontSize: "2.4mm", color: INK, textAlign: "center" }}>{website}</p>}
+    </div>
+  );
+}
+
+/**
+ * The textured clay back with the logo badge. On the tall card the texture fills the card and
+ * the full design sits in the middle, fading into it top and bottom so the badge isn't cut off.
+ */
+function BrandBack({ w, h }: { w: number; h: number }) {
+  const square = w === h;
+  return (
+    <div style={{ width: `${w}mm`, height: `${h}mm`, background: "#e8dfd3" }} className="relative shrink-0 overflow-hidden">
+      <img src={brandBack} alt="" className="absolute inset-0 h-full w-full object-cover" style={square ? undefined : { filter: "blur(0.3mm)" }} />
+      {!square && (
+        <img
+          src={brandBack}
+          alt=""
+          className="absolute left-0 top-1/2 w-full -translate-y-1/2"
+          style={{ maskImage: "linear-gradient(to bottom, transparent, #000 18%, #000 82%, transparent)", WebkitMaskImage: "linear-gradient(to bottom, transparent, #000 18%, #000 82%, transparent)" }}
+        />
+      )}
     </div>
   );
 }

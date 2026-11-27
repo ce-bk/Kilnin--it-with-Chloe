@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { NavLink, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import type { Session } from "@supabase/supabase-js";
-import { BookOpen, CalendarDays, Home as HomeIcon, IdCard, LogOut, Menu, Package, ReceiptText, Sprout, Tag } from "lucide-react";
+import { CalendarDays, Home as HomeIcon, IdCard, LogOut, Menu, Package, ReceiptText, Sprout, Tag } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -96,7 +96,8 @@ function SignIn() {
   );
 }
 
-type TabDef = { to: string; label: string; icon: typeof HomeIcon; end?: boolean };
+/** `also`: other pages that belong to this one (the Guide is part of Leads). */
+type TabDef = { to: string; label: string; icon: typeof HomeIcon; end?: boolean; also?: string[] };
 const tabs: TabDef[] = [
   { to: "/admin", label: "Home", icon: HomeIcon, end: true },
   { to: "/admin/pieces", label: "Pieces", icon: Package },
@@ -104,12 +105,12 @@ const tabs: TabDef[] = [
   { to: "/admin/events", label: "Events", icon: CalendarDays },
   { to: "/admin/sales", label: "Sales", icon: ReceiptText },
   { to: "/admin/cards", label: "Cards", icon: IdCard },
-  { to: "/admin/leads", label: "Leads", icon: Sprout },
-  { to: "/admin/guide", label: "Guide", icon: BookOpen },
+  { to: "/admin/leads", label: "Leads", icon: Sprout, also: ["/admin/guide"] },
 ];
 
 /** The menu: the same list on the desktop sidebar and in the phone's slide-out menu. */
 function NavList({ onNavigate }: { onNavigate?: () => void }) {
+  const { pathname } = useLocation();
   return (
     <>
       <nav className="space-y-1">
@@ -119,7 +120,7 @@ function NavList({ onNavigate }: { onNavigate?: () => void }) {
             to={t.to}
             end={t.end}
             onClick={onNavigate}
-            className={({ isActive }) => cn("flex min-h-11 items-center gap-3 rounded-lg px-3 text-base font-medium md:min-h-9 md:text-sm", isActive ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/60 hover:text-foreground")}
+            className={({ isActive: exact }) => cn("flex min-h-11 items-center gap-3 rounded-lg px-3 text-base font-medium md:min-h-9 md:text-sm", exact || t.also?.some((p) => pathname.startsWith(p)) ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/60 hover:text-foreground")}
           >
             <t.icon className="size-5 md:size-4" />
             {t.label}
@@ -140,7 +141,7 @@ export function Shell() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
-  const current = [...tabs].sort((a, b) => b.to.length - a.to.length).find((t) => (t.end ? pathname === t.to : pathname.startsWith(t.to)));
+  const current = [...tabs].sort((a, b) => b.to.length - a.to.length).find((t) => (t.end ? pathname === t.to : pathname.startsWith(t.to) || t.also?.some((p) => pathname.startsWith(p))));
 
   return (
     <div className="min-h-dvh bg-background text-foreground md:grid md:grid-cols-[15rem_1fr]">
