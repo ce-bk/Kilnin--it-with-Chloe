@@ -3,7 +3,7 @@ import type { Item, Sale } from "@/lib/supabase";
 import { eur, groupByCategory, matchPhoto, parsePrice, salesByItem, sum, unitsLeft } from "./data";
 
 const item = (over: Partial<Item> = {}): Item => ({
-  id: "a", category_id: "bowls", site_piece_id: null, photo_path: null, label: "Bowl", price_eur: 20,
+  id: "a", category_id: "bowls", site_piece_id: null, photo_path: null, label: "Bowl", price_eur: 20, valued_eur: null,
   status: "available", quantity: 1, notes: null, sort: 0, categories: { name: "Bowls", sort: 40 }, ...over,
 });
 const sale = (item_id: string, price_eur = 20): Sale => ({
@@ -71,3 +71,4 @@ describe("matchPhoto", () => {
     expect(id("Guac bowl.jpg")).toBeNull();
   });
 });
+

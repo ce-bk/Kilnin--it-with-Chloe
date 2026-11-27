@@ -101,7 +101,7 @@ export function useUndoSale() {
   });
 }
 
-export type ItemPatch = Partial<Pick<Item, "label" | "price_eur" | "status" | "notes" | "category_id" | "quantity">>;
+export type ItemPatch = Partial<Pick<Item, "label" | "price_eur" | "valued_eur" | "status" | "notes" | "category_id" | "quantity">>;
 
 export function useSaveItem() {
   const invalidate = useInvalidate();

@@ -25,6 +25,8 @@ export interface Item {
   photo_url?: string;
   label: string;
   price_eur: number | null;
+  /** What the piece is worth with the maker's time counted; shown next to the sale price. */
+  valued_eur: number | null;
   status: ItemStatus;
   /** How many identical units this entry stands for; each sale is one unit. */
   quantity: number;
