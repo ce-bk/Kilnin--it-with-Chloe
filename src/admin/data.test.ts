@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Item, Sale } from "@/lib/supabase";
-import { eur, groupByCategory, matchPhoto, parsePrice, salesByItem, sum, unitsLeft } from "./data";
+import { eur, eventLists, groupByCategory, matchPhoto, parsePrice, salesByItem, sum, unitsLeft } from "./data";
 
 const item = (over: Partial<Item> = {}): Item => ({
   id: "a", category_id: "bowls", site_piece_id: null, photo_path: null, label: "Bowl", price_eur: 20, valued_eur: null,
@@ -72,3 +72,29 @@ describe("matchPhoto", () => {
   });
 });
 
+
+describe("event lists", () => {
+  const sold = (item_id: string, market_id: string | null) => ({ ...sale(item_id), market_id });
+  const pieces = [
+    item({ id: "lamp" }),                                  // in stock, ticked
+    item({ id: "vase" }),                                  // in stock, not ticked
+    item({ id: "cortado", status: "sold" }),               // ticked, then sold somewhere else
+    item({ id: "mustard", status: "not_for_sale" }),       // ticked, then taken out of sale
+    item({ id: "mug", status: "sold" }),                   // sold at this event
+    item({ id: "holders", quantity: 3 }),                  // 1 of 3 sold here, ticked
+  ];
+  const ticked = new Set(["lamp", "cortado", "mustard", "mug", "holders"]);
+  const sales = [sold("cortado", null), sold("mug", "here"), sold("holders", "here")];
+  const { pack, sell } = eventLists(pieces, ticked, "here", sales);
+  const ids = (l: Item[]) => l.map((i) => i.id).sort();
+
+  it("Pack lists everything in stock plus what sold here", () => {
+    expect(ids(pack)).toEqual(["holders", "lamp", "mug", "vase"]);
+  });
+  it("Sell lists only ticked pieces still in stock, plus what sold here", () => {
+    expect(ids(sell)).toEqual(["holders", "lamp", "mug"]);
+  });
+  it("never has a piece on Sell that isn't on Pack", () => {
+    for (const i of sell) expect(pack).toContain(i);
+  });
+});

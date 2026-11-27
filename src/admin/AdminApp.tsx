@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { NavLink, Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { NavLink, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import type { Session } from "@supabase/supabase-js";
-import { CalendarDays, Home as HomeIcon, IdCard, LogOut, Package, ReceiptText, Sprout, Tag } from "lucide-react";
+import { BookOpen, CalendarDays, Home as HomeIcon, IdCard, LogOut, Menu, Package, ReceiptText, Sprout, Tag } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Sheet, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import logo from "@/assets/kilninit-mark.png";
 import { useAdminData } from "./data";
@@ -61,6 +62,7 @@ function SignIn() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const navigate = useNavigate();
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -68,6 +70,7 @@ function SignIn() {
     setError(null);
     const { error } = await supabase!.auth.signInWithPassword({ email, password });
     if (error) setError(error.message === "Invalid login credentials" ? "That email and password don't match. Try again." : error.message);
+    else navigate("/admin", { replace: true }); // always start on Home after signing in
     setBusy(false);
   }
 
@@ -93,50 +96,77 @@ function SignIn() {
   );
 }
 
-type TabDef = { to: string; label: string; icon: typeof HomeIcon; end?: boolean; primary?: boolean; desktopOnly?: boolean };
+type TabDef = { to: string; label: string; icon: typeof HomeIcon; end?: boolean };
 const tabs: TabDef[] = [
   { to: "/admin", label: "Home", icon: HomeIcon, end: true },
   { to: "/admin/pieces", label: "Pieces", icon: Package },
-  { to: "/admin/sell", label: "Sell", icon: Tag, primary: true },
+  { to: "/admin/sell", label: "Sell", icon: Tag },
   { to: "/admin/events", label: "Events", icon: CalendarDays },
-  // On phones, Leads is reached from Home and Events so the tab bar keeps five buttons.
-  { to: "/admin/leads", label: "Leads", icon: Sprout, desktopOnly: true },
   { to: "/admin/sales", label: "Sales", icon: ReceiptText },
-  // On phones, Cards is reached from the Pieces page.
-  { to: "/admin/cards", label: "Cards", icon: IdCard, desktopOnly: true },
+  { to: "/admin/cards", label: "Cards", icon: IdCard },
+  { to: "/admin/leads", label: "Leads", icon: Sprout },
+  { to: "/admin/guide", label: "Guide", icon: BookOpen },
 ];
+
+/** The menu: the same list on the desktop sidebar and in the phone's slide-out menu. */
+function NavList({ onNavigate }: { onNavigate?: () => void }) {
+  return (
+    <>
+      <nav className="space-y-1">
+        {tabs.map((t) => (
+          <NavLink
+            key={t.to}
+            to={t.to}
+            end={t.end}
+            onClick={onNavigate}
+            className={({ isActive }) => cn("flex min-h-11 items-center gap-3 rounded-lg px-3 text-base font-medium md:min-h-9 md:text-sm", isActive ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/60 hover:text-foreground")}
+          >
+            <t.icon className="size-5 md:size-4" />
+            {t.label}
+          </NavLink>
+        ))}
+      </nav>
+      <button onClick={() => supabase!.auth.signOut()} className="mt-auto flex min-h-11 items-center gap-3 rounded-lg px-3 text-base text-muted-foreground hover:bg-muted/60 hover:text-foreground md:min-h-9 md:text-sm">
+        <LogOut className="size-5 md:size-4" /> Sign out
+      </button>
+    </>
+  );
+}
 
 export function Shell() {
   const data = useAdminData();
   const { pathname } = useLocation();
+  const [menuOpen, setMenuOpen] = useState(false);
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
+  const current = [...tabs].sort((a, b) => b.to.length - a.to.length).find((t) => (t.end ? pathname === t.to : pathname.startsWith(t.to)));
 
   return (
     <div className="min-h-dvh bg-background text-foreground md:grid md:grid-cols-[15rem_1fr]">
       {/* Desktop sidebar */}
       <aside className="sticky top-0 hidden h-dvh flex-col border-r bg-card/60 px-3 py-6 md:flex">
         <p className="flex items-center gap-2 px-3 pb-6 font-display text-xl font-semibold"><img src={logo} alt="" className="size-8" />Kilnin' it</p>
-        <nav className="space-y-1">
-          {tabs.map((t) => (
-            <NavLink
-              key={t.to}
-              to={t.to}
-              end={t.end}
-              className={({ isActive }) => cn("flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium", isActive ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted/60 hover:text-foreground")}
-            >
-              <t.icon className="size-4" />
-              {t.label}
-            </NavLink>
-          ))}
-        </nav>
-        <button onClick={() => supabase!.auth.signOut()} className="mt-auto flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-muted/60 hover:text-foreground">
-          <LogOut className="size-4" /> Sign out
-        </button>
+        <NavList />
       </aside>
 
-      <main className="mx-auto w-full max-w-3xl px-4 pb-32 pt-4 md:px-8 md:pb-12 md:pt-8">
+      {/* Phone top bar with the menu button */}
+      <header className="sticky top-0 z-40 flex h-14 items-center gap-2 border-b bg-card/95 px-2 backdrop-blur md:hidden">
+        <button type="button" onClick={() => setMenuOpen(true)} aria-label="Open menu" className="grid size-11 place-items-center rounded-lg hover:bg-muted">
+          <Menu className="size-6" />
+        </button>
+        <img src={logo} alt="" className="size-7" />
+        <span className="font-display text-lg font-semibold">{current?.label ?? "Kilnin' it"}</span>
+      </header>
+      <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+        <SheetContent side="left" className="admin-theme flex w-72 flex-col bg-background px-3 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-6">
+          <SheetTitle className="flex items-center gap-2 px-3 pb-4 font-display text-xl font-semibold"><img src={logo} alt="" className="size-8" />Kilnin' it</SheetTitle>
+          <SheetDescription className="sr-only">Go to a page</SheetDescription>
+          <NavList onNavigate={() => setMenuOpen(false)} />
+        </SheetContent>
+      </Sheet>
+
+      <main className="mx-auto w-full max-w-3xl px-4 pb-16 pt-4 md:px-8 md:pb-12 md:pt-8">
         {data.error ? (
           <p role="alert" className="rounded-xl bg-muted p-4 text-sm">Couldn't load your inventory: {data.error.message}. Check your connection and refresh.</p>
         ) : data.loading ? (
@@ -159,44 +189,7 @@ export function Shell() {
         )}
       </main>
 
-      {/* Mobile tab bar */}
-      <nav className="fixed inset-x-0 bottom-0 z-40 border-t bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
-        <div className="mx-auto grid max-w-lg grid-cols-5 items-end px-2">
-          {tabs.filter((t) => !t.desktopOnly).map((t) => <TabLink key={t.to} tab={t} />)}
-        </div>
-      </nav>
     </div>
-  );
-}
-
-function TabLink({ tab }: { tab: TabDef }) {
-  if (tab.primary) {
-    return (
-      <NavLink to={tab.to} className="flex flex-col items-center gap-1 pb-2 text-[11px] font-semibold" >
-        {({ isActive }) => (
-          <>
-            <span className={cn("-mt-5 grid size-14 place-items-center rounded-full bg-primary text-primary-foreground shadow-[0_6px_16px_-4px_hsl(var(--foreground)/0.45)] ring-4 ring-background transition-transform active:scale-95", isActive && "ring-[hsl(var(--highlight))]")}>
-              <tab.icon className="size-6" strokeWidth={2} />
-            </span>
-            {tab.label}
-          </>
-        )}
-      </NavLink>
-    );
-  }
-  return (
-    <NavLink
-      to={tab.to}
-      end={tab.end}
-      className={({ isActive }) => cn("flex min-h-16 flex-col items-center justify-center gap-1 text-[11px] font-medium", isActive ? "text-foreground" : "text-muted-foreground")}
-    >
-      {({ isActive }) => (
-        <>
-          <tab.icon className="size-5" strokeWidth={isActive ? 2.25 : 1.75} />
-          {tab.label}
-        </>
-      )}
-    </NavLink>
   );
 }
 

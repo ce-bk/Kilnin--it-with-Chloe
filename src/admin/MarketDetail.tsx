@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import type { Item, Market, Sale } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 import type { AdminData } from "./AdminApp";
-import { eur, formatDate, groupByCategory, METHODS, parsePrice, salesByItem, sum, unitsLeft, useSaveItem, useTogglePacked, useUndoSale } from "./data";
+import { eventLists, eur, formatDate, groupByCategory, METHODS, parsePrice, salesByItem, sum, unitsLeft, useSaveItem, useTogglePacked, useUndoSale } from "./data";
 import { MarketSheet, SaleSheet } from "./sheets";
 import { Empty, GoalBar, Segmented, SoldPrice, Status, Thumb } from "./ui";
 
@@ -60,22 +60,21 @@ function usePacked(market: Market, { items, marketItems, sales }: AdminData) {
     const marketSales = sales.filter((s) => s.market_id === market.id);
     const saleByItem = salesByItem(marketSales); // sales made at this event
     const allSales = salesByItem(sales);
-    const packed = items.filter((i) => ids.has(i.id) || saleByItem.has(i.id));
-    const soldHere = (i: Item) => saleByItem.get(i.id)?.length ?? 0;
     const left = (i: Item) => unitsLeft(i, allSales);
+    const { pack, sell: packed } = eventLists(items, ids, market.id, sales);
+    const soldHere = (i: Item) => saleByItem.get(i.id)?.length ?? 0;
     /** Units brought to the event: what's still left plus what sold here. */
     const units = (i: Item) => left(i) + soldHere(i);
-    return { ids, packed, marketSales, saleByItem, soldHere, left, units };
+    return { ids, pack, packed, marketSales, saleByItem, soldHere, left, units };
   }, [items, marketItems, sales, market.id]);
 }
 
 // ---------------------------------------------------------------- Pack
 
 function Pack({ market, ...data }: Props) {
-  const { ids, saleByItem, soldHere } = usePacked(market, data);
+  const { ids, pack: candidates, soldHere } = usePacked(market, data);
   const toggle = useTogglePacked();
   const saveItem = useSaveItem();
-  const candidates = data.items.filter((i) => i.status === "available" || saleByItem.has(i.id));
   const available = candidates.filter((i) => i.status === "available");
   const packedCount = candidates.filter((i) => ids.has(i.id)).length;
   const unpricedPacked = available.filter((i) => ids.has(i.id) && i.price_eur == null).length;
