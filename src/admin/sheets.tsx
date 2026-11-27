@@ -290,8 +290,8 @@ export function PieceSheet({
         <div className="space-y-2">
           <Label htmlFor="p-qty">How many</Label>
           <Input id="p-qty" type="number" inputMode="numeric" min={1} step={1} value={quantity} onChange={(e) => setQuantity(e.target.value)} className="tabular h-12 w-28" />
-          {qtyError ? <p className="text-sm text-destructive">{qtyError}</p> : qty > 1 && (
-            <p className="text-sm text-muted-foreground">Identical pieces sold one at a time. {sales.length > 0 ? `${left} of ${qty} left.` : ""}</p>
+          {qtyError ? <p className="text-sm text-destructive">{qtyError}</p> : qty > 1 && sales.length > 0 && (
+            <p className="text-sm text-muted-foreground">{left} of {qty} left.</p>
           )}
         </div>
         <div className="space-y-2">
