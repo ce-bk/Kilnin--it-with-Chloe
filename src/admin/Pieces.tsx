@@ -66,7 +66,7 @@ export default function Pieces({ items, categories, sales, markets }: AdminData)
         }
       />
 
-      <div className="sticky top-0 z-10 -mx-4 space-y-3 bg-background/95 px-4 pb-3 pt-1 backdrop-blur md:-mx-8 md:px-8">
+      <div className="sticky top-14 z-10 -mx-4 md:top-0 space-y-3 bg-background/95 px-4 pb-3 pt-1 backdrop-blur md:-mx-8 md:px-8">
         <label className="relative block">
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <span className="sr-only">Search pieces</span>

@@ -108,7 +108,7 @@ function PieceCards({ items, sales }: AdminData) {
           <Button className="mt-3 h-11 w-full rounded-xl sm:w-auto" disabled={cards.length === 0} onClick={print}><Printer /> Print piece cards</Button>
         </div>
 
-        <div className="sticky top-0 z-10 -mx-4 bg-background/95 px-4 pb-2 pt-1 backdrop-blur md:-mx-8 md:px-8">
+        <div className="sticky top-14 z-10 -mx-4 md:top-0 bg-background/95 px-4 pb-2 pt-1 backdrop-blur md:-mx-8 md:px-8">
           <p className="mb-1 text-xs text-muted-foreground">
             Preview{previewItem ? <>: <strong className="text-foreground">{nameOf(previewItem)}</strong></> : " · tap a piece below to see its card"}
           </p>
