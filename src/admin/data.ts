@@ -157,27 +157,99 @@ async function shrink(file: File): Promise<Blob> {
   }
 }
 
+/** Upload a new photo (file) or remove the current one (file = null) for one piece. */
+async function setPhoto({ itemId, oldPath, file }: { itemId: string; oldPath: string | null; file: File | null }) {
+  let path: string | null = null;
+  if (file) {
+    const blob = await shrink(file);
+    path = `${itemId}/${Date.now()}.jpg`;
+    const { error } = await db().storage.from(BUCKET).upload(path, blob, { contentType: blob.type || "image/jpeg" });
+    if (error) throw error;
+  }
+  const { error } = await db().from("items").update({ photo_path: path, updated_at: new Date().toISOString() }).eq("id", itemId);
+  if (error) throw error;
+  if (oldPath) await db().storage.from(BUCKET).remove([oldPath]);
+}
+
 export function useSetPhoto() {
   const invalidate = useInvalidate();
   return useMutation({
-    /** Upload a new photo (file) or remove the current one (file = null). */
-    mutationFn: async ({ itemId, oldPath, file }: { itemId: string; oldPath: string | null; file: File | null }) => {
-      let path: string | null = null;
-      if (file) {
-        const blob = await shrink(file);
-        path = `${itemId}/${Date.now()}.jpg`;
-        const { error } = await db().storage.from(BUCKET).upload(path, blob, { contentType: blob.type || "image/jpeg" });
-        if (error) throw error;
-      }
-      const { error } = await db().from("items").update({ photo_path: path, updated_at: new Date().toISOString() }).eq("id", itemId);
-      if (error) throw error;
-      if (oldPath) await db().storage.from(BUCKET).remove([oldPath]);
-    },
+    mutationFn: setPhoto,
     onSuccess: (_d, v) => {
       invalidate("items", "photo-urls");
       toast.success(v.file ? "Photo saved" : "Photo removed");
     },
     onError: fail,
+  });
+}
+
+export interface PhotoMatch {
+  file: File;
+  /** The piece this photo goes on, or null to skip it. */
+  item: Item | null;
+}
+
+const words = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+
+/**
+ * The piece a photo's file name points to. Exact name first (ignoring case and punctuation),
+ * then the longest piece name the file name starts with, so "Small dip bowl (my guess).jpg"
+ * finds "Small dip bowl".
+ */
+export function matchPhoto(fileName: string, items: Item[]): Item | null {
+  const name = words(fileName.replace(/\.[^.]+$/, ""));
+  if (!name) return null;
+  const exact = items.find((i) => words(i.label) === name);
+  if (exact) return exact;
+  let best: Item | null = null;
+  for (const i of items) {
+    const label = words(i.label);
+    if (label && (name.startsWith(`${label} `)) && label.length > (best ? words(best.label).length : 0)) best = i;
+  }
+  return best;
+}
+
+/** Upload several photos, one after another, each onto its piece (replacing any photo it had). */
+export function useBulkPhotos() {
+  const invalidate = useInvalidate();
+  return useMutation({
+    mutationFn: async ({ matches, onProgress }: { matches: { file: File; item: Item }[]; onProgress: (done: number) => void }) => {
+      const failed: string[] = [];
+      let done = 0;
+      for (const m of matches) {
+        try {
+          await setPhoto({ itemId: m.item.id, oldPath: m.item.photo_path, file: m.file });
+        } catch {
+          failed.push(m.item.label);
+        }
+        onProgress(++done);
+      }
+      return { saved: matches.length - failed.length, failed };
+    },
+    onSuccess: ({ saved, failed }) => {
+      invalidate("items", "photo-urls");
+      if (failed.length) toast.error(`${saved} saved, ${failed.length} didn't upload`, { description: failed.join(", ") });
+      else toast.success(`${saved} photo${saved === 1 ? "" : "s"} saved`);
+    },
+    onError: fail,
+  });
+}
+
+/** Remove a piece for good, with its photo. Pieces with sales can't be deleted (undo the sales first). */
+export function useDeletePiece() {
+  const invalidate = useInvalidate();
+  return useMutation({
+    mutationFn: async (item: Item) => {
+      const { error } = await db().from("items").delete().eq("id", item.id);
+      if (error) throw error.code === "23503" ? new Error("it has sales recorded. Undo them first, or turn off For sale instead") : error;
+      if (item.photo_path) await db().storage.from(BUCKET).remove([item.photo_path]);
+      return item;
+    },
+    onSuccess: (item) => {
+      invalidate("items", "market_items", "photo-urls");
+      toast(`Deleted: ${item.label}`);
+    },
+    onError: (e) => toast.error(`Couldn't delete: ${e instanceof Error ? e.message : String(e)}`),
   });
 }
 

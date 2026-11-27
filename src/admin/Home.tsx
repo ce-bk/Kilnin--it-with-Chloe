@@ -11,7 +11,6 @@ export default function Home({ items, sales, markets, marketItems }: AdminData) 
   const monthSales = sales.filter((s) => localDay(s.sold_at).slice(0, 7) === month);
   const inStock = items.filter((i) => i.status === "available");
   const unpriced = inStock.filter((i) => i.price_eur == null);
-  const toCheck = inStock.filter((i) => i.notes?.toLowerCase().includes("check"));
   const bySale = salesByItem(sales);
   const stockValue = inStock.reduce((t, i) => t + Number(i.price_eur ?? 0) * unitsLeft(i, bySale), 0);
 
@@ -30,7 +29,6 @@ export default function Home({ items, sales, markets, marketItems }: AdminData) 
 
   const tasks = [
     unpriced.length > 0 && { to: "/admin/pieces?filter=unpriced", text: <><strong>{unpriced.length} {unpriced.length === 1 ? "piece needs" : "pieces need"}</strong> a price</> },
-    toCheck.length > 0 && { to: "/admin/pieces?filter=check", text: <><strong>{toCheck.length} {toCheck.length === 1 ? "note" : "notes"}</strong> to check</> },
     leadsDue.length > 0 && { to: "/admin/leads", text: <><strong>{leadsDue.length} {leadsDue.length === 1 ? "lead" : "leads"}</strong> to follow up this week</> },
     next && { to: `/admin/events/${next.id}?tab=pack`, text: <><strong>{nextPacked} packed</strong> for {next.name}</> },
   ].filter(Boolean) as { to: string; text: React.ReactNode }[];
