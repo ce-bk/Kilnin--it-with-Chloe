@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { IdCard, ImagePlus, Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { Item } from "@/lib/supabase";
 import type { AdminData } from "./AdminApp";
 import { eur, groupByCategory, salesByItem, unitsLeft } from "./data";
@@ -48,8 +49,18 @@ export default function Pieces({ items, categories, sales, markets }: AdminData)
         sub={`${items.filter((i) => i.status === "available").length} in stock · ${items.filter((i) => i.status === "sold").length} sold`}
         action={
           <div className="flex gap-2">
-            <Button variant="outline" size="icon" className="size-11 rounded-xl" aria-label="Add photos" title="Add photos" onClick={() => setAddingPhotos(true)}><ImagePlus /></Button>
-            <Button asChild variant="outline" size="icon" className="size-11 rounded-xl" aria-label="Print piece cards"><Link to="/admin/cards"><IdCard /></Link></Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="outline" size="icon" className="size-11 rounded-xl" aria-label="Upload images" onClick={() => setAddingPhotos(true)}><ImagePlus /></Button>
+              </TooltipTrigger>
+              <TooltipContent>Upload images</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button asChild variant="outline" size="icon" className="size-11 rounded-xl" aria-label="Print tags"><Link to="/admin/cards"><IdCard /></Link></Button>
+              </TooltipTrigger>
+              <TooltipContent>Print tags</TooltipContent>
+            </Tooltip>
             <Button className="h-11 rounded-xl" onClick={() => setCreating(true)}><Plus /> Add piece</Button>
           </div>
         }
