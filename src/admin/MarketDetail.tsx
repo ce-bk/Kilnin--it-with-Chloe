@@ -79,7 +79,9 @@ function Pack({ market, ...data }: Props) {
   const available = candidates.filter((i) => i.status === "available");
   const packedCount = candidates.filter((i) => ids.has(i.id)).length;
   const unpricedPacked = available.filter((i) => ids.has(i.id) && i.price_eur == null).length;
-  const value = available.filter((i) => ids.has(i.id)).reduce((t, i) => t + Number(i.price_eur ?? 0), 0);
+  // The market price is per piece, so pieces with several (e.g. page holders) count once per one left.
+  const bySale = salesByItem(data.sales);
+  const value = available.filter((i) => ids.has(i.id)).reduce((t, i) => t + Number(i.price_eur ?? 0) * unitsLeft(i, bySale), 0);
   const allPacked = available.every((i) => ids.has(i.id));
 
   const groups = groupByCategory(candidates);
@@ -132,7 +134,6 @@ function Pack({ market, ...data }: Props) {
                   </button>
                   <Thumb item={i} className="size-10" />
                   <p className="min-w-0 flex-1 truncate text-sm">{i.label}
-                    {(i.quantity ?? 1) > 1 && <span className="tabular text-muted-foreground"> × {i.quantity}</span>}
                     {n > 0 && <span className="text-muted-foreground"> · {(i.quantity ?? 1) > 1 ? `${n} ` : ""}sold here</span>}
                   </p>
                   <span className="tabular w-14 shrink-0 text-right text-sm text-muted-foreground" aria-label={i.valued_eur != null ? `valued at ${eur(i.valued_eur)}` : "no valued price"}>
