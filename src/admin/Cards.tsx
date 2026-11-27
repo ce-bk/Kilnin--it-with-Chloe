@@ -7,8 +7,9 @@ import type { Item } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 import mark from "@/assets/kilninit-mark.png";
 import type { AdminData } from "./AdminApp";
-import { groupByCategory, salesByItem, unitsLeft } from "./data";
+import { groupByCategory, salesByItem, unitsLeft, useSaveItem } from "./data";
 import { Empty, PageHeader, Segmented, Thumb } from "./ui";
+import { BrandCards, PaymentSigns } from "./StallCards";
 
 // Business-card size (2 × 3.5 in), 9 to an A4 sheet. Matches brand/piece-cards/.
 const CARD_W = 50.8; // mm
@@ -29,7 +30,29 @@ const cardName = (label: string) => label.replace(/\s+\d+$/, "");
 
 type Card = { key: string; name: string; photo?: string };
 
-export default function Cards({ items, sales }: AdminData) {
+type Section = "pieces" | "payment" | "brand";
+
+const sections: { value: Section; label: string; sub: string }[] = [
+  { value: "pieces", label: "Piece cards", sub: "The little card that goes with each piece. Front: its name. Back: its photo." },
+  { value: "payment", label: "Payment", sub: "A table sign so people can pay you: Revolut QR code, Bizum number, card and cash." },
+  { value: "brand", label: "Brand", sub: "A card to hand out, with a QR code to your Instagram and your website." },
+];
+
+export default function Cards(data: AdminData) {
+  const [section, setSection] = useState<Section>("pieces");
+  return (
+    <div>
+      <PageHeader title="Cards" sub={sections.find((s) => s.value === section)?.sub} />
+      <Segmented<Section> className="mb-4" value={section} onChange={setSection} options={sections} />
+      {section === "pieces" && <PieceCards {...data} />}
+      {section === "payment" && <PaymentSigns />}
+      {section === "brand" && <BrandCards />}
+    </div>
+  );
+}
+
+function PieceCards({ items, sales }: AdminData) {
+  const [previewId, setPreviewId] = useState<string | null>(null);
   const [scope, setScope] = useState<"available" | "all">("available");
   const bySale = useMemo(() => salesByItem(sales), [sales]);
   const shown = items.filter((i) => (scope === "all" ? i.status !== "not_for_sale" : i.status === "available"));
@@ -40,6 +63,19 @@ export default function Cards({ items, sales }: AdminData) {
   const [names, setNames] = useState<Record<string, string>>({});
   const countOf = (i: Item) => copies[i.id] ?? defaultCopies(i);
   const nameOf = (i: Item) => names[i.id] ?? cardName(i.label);
+  const save = useSaveItem();
+
+  /** A name changed here is the piece's name everywhere (Pieces, events, sales), so save it. */
+  function saveName(i: Item) {
+    const typed = names[i.id]?.trim();
+    if (typed === undefined) return;
+    if (typed && typed !== cardName(i.label)) {
+      const number = i.label.match(/\s+\d+$/)?.[0] ?? ""; // keep "2" in "Sap mug 2" so the two stay apart in the inventory
+      save.mutate({ id: i.id, patch: { label: `${typed}${number}` } }, { onSettled: () => setNames(({ [i.id]: _, ...rest }) => rest) });
+    } else {
+      setNames(({ [i.id]: _, ...rest }) => rest);
+    }
+  }
 
   const cards: Card[] = shown.flatMap((i) =>
     Array.from({ length: countOf(i) }, (_, n) => ({ key: `${i.id}-${n}`, name: nameOf(i), photo: photoOf(i) })),
@@ -53,14 +89,11 @@ export default function Cards({ items, sales }: AdminData) {
     Promise.all(imgs.map((img) => (img.complete ? null : new Promise((r) => { img.onload = img.onerror = r; })))).then(() => window.print());
   }
 
+  const previewItem = shown.find((i) => i.id === previewId);
+  const preview = previewItem ? { name: nameOf(previewItem), photo: photoOf(previewItem) } : cards[0];
+
   return (
     <div>
-      <PageHeader
-        title="Piece cards"
-        sub="The little card that goes with each piece. Front: its name. Back: its photo."
-        action={<Button className="h-11 rounded-xl" disabled={cards.length === 0} onClick={print}><Printer /> Print</Button>}
-      />
-
       <div className="space-y-4">
         <Segmented<"available" | "all"> value={scope} onChange={setScope} options={[{ value: "available", label: "In stock" }, { value: "all", label: "All pieces" }]} />
 
@@ -72,11 +105,17 @@ export default function Cards({ items, sales }: AdminData) {
           <p className="mt-2 text-muted-foreground">
             In the print window choose <strong className="text-foreground">A4</strong>, scale <strong className="text-foreground">100% / Actual size</strong>, and <strong className="text-foreground">two-sided, flip on long edge</strong>. Cut along the marks.
           </p>
+          <Button className="mt-3 h-11 w-full rounded-xl sm:w-auto" disabled={cards.length === 0} onClick={print}><Printer /> Print piece cards</Button>
         </div>
 
-        <div className="flex gap-4 overflow-x-auto pb-1">
-          <div className="shrink-0"><p className="mb-1 text-xs text-muted-foreground">Front</p><CardFront name={cards[0]?.name ?? "Page holder"} /></div>
-          <div className="shrink-0"><p className="mb-1 text-xs text-muted-foreground">Back</p><CardBack photo={cards[0]?.photo} /></div>
+        <div className="sticky top-0 z-10 -mx-4 bg-background/95 px-4 pb-2 pt-1 backdrop-blur md:-mx-8 md:px-8">
+          <p className="mb-1 text-xs text-muted-foreground">
+            Preview{previewItem ? <>: <strong className="text-foreground">{nameOf(previewItem)}</strong></> : " · tap a piece below to see its card"}
+          </p>
+          <div className="flex gap-4 overflow-x-auto pb-1">
+            <div className="shrink-0"><p className="mb-1 text-xs text-muted-foreground">Front</p><CardFront name={preview?.name ?? "Page holder"} /></div>
+            <div className="shrink-0"><p className="mb-1 text-xs text-muted-foreground">Back</p><CardBack photo={preview?.photo} /></div>
+          </div>
         </div>
 
         {shown.length === 0 ? <Empty>No pieces here.</Empty> : groupByCategory(shown).map(([category, list]) => (
@@ -86,12 +125,17 @@ export default function Cards({ items, sales }: AdminData) {
               {list.map((i) => {
                 const n = countOf(i);
                 return (
-                  <li key={i.id} className={cn("flex items-center gap-3 px-3 py-2.5", n === 0 && "opacity-60")}>
-                    <Thumb item={i} className="size-10" />
+                  <li key={i.id} className={cn("flex items-center gap-3 px-3 py-2.5", n === 0 && "opacity-60", previewId === i.id && "bg-muted")}>
+                    <button type="button" aria-label={`Preview the card for ${i.label}`} aria-pressed={previewId === i.id} onClick={() => setPreviewId(i.id)} className="shrink-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                      <Thumb item={i} className="size-10" />
+                    </button>
                     <input
+                      onFocus={() => setPreviewId(i.id)}
                       aria-label={`Name on the card for ${i.label}`}
                       value={nameOf(i)}
                       onChange={(e) => setNames((m) => ({ ...m, [i.id]: e.target.value }))}
+                      onBlur={() => saveName(i)}
+                      onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
                       className="h-10 min-w-0 flex-1 rounded-lg border border-transparent bg-transparent px-2 text-sm hover:border-input focus-visible:border-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     />
                     <div className="flex shrink-0 items-center gap-1" role="group" aria-label={`Cards for ${i.label}`}>
