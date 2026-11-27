@@ -1,6 +1,6 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { Printer } from "lucide-react";
+import { ImagePlus, Printer } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -72,6 +72,17 @@ function PrintHelp({ children }: { children: ReactNode }) {
   return <p className="rounded-2xl border bg-card p-4 text-sm text-muted-foreground">{children}</p>;
 }
 
+/** Read a picked image as a small PNG (max 600px), so it fits in the browser's memory for this site. */
+async function imageToDataUrl(file: File): Promise<string> {
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, 600 / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  canvas.getContext("2d")!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  return canvas.toDataURL("image/png");
+}
+
 // ---------------------------------------------------------------- Payment sign (A6, 4 per A4)
 
 const SIGN_W = 105; // mm
@@ -80,19 +91,47 @@ const SIGN_H = 148;
 export function PaymentSigns() {
   const [revolut, setRevolut] = useRemembered("revolut", "");
   const [bizum, setBizum] = useRemembered("bizum", "");
+  const [qrImage, setQrImage] = useRemembered("revolut-qr", "");
   const [count, setCount] = useState(1);
-  const ready = revolut.trim() !== "" || bizum.trim() !== "";
+  const [imageError, setImageError] = useState("");
+  const ready = revolut.trim() !== "" || bizum.trim() !== "" || qrImage !== "";
 
   return (
     <div className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-2">
-        <Field id="pay-revolut" label="Revolut link" value={revolut} onChange={setRevolut} placeholder="revolut.me/yourname" inputMode="url" hint="The QR code opens this link." />
+        <Field id="pay-revolut" label="Revolut link" value={revolut} onChange={setRevolut} placeholder="revolut.me/yourname" inputMode="url" hint="Printed under the QR code." />
         <Field id="pay-bizum" label="Bizum number" value={bizum} onChange={setBizum} placeholder="600 000 000" inputMode="tel" hint="Leave empty to leave Bizum off." />
       </div>
-      <p className="text-xs text-muted-foreground">These are remembered on this device only. They're never saved in the website's code.</p>
+      <div className="flex flex-wrap items-center gap-3">
+        <label className="inline-flex h-11 cursor-pointer items-center gap-2 rounded-xl border border-input bg-card px-4 text-sm font-medium hover:bg-muted">
+          <ImagePlus className="size-4" /> {qrImage ? "Change QR code image" : "Use my own QR code image"}
+          <input
+            type="file"
+            accept="image/*"
+            className="sr-only"
+            onChange={async (e) => {
+              const f = e.target.files?.[0];
+              e.target.value = "";
+              if (!f) return;
+              try {
+                setQrImage(await imageToDataUrl(f));
+                setImageError("");
+              } catch {
+                setImageError("Couldn't read that image. Try a screenshot saved as PNG or JPG.");
+              }
+            }}
+          />
+        </label>
+        {qrImage && <button type="button" className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground" onClick={() => setQrImage("")}>Remove image</button>}
+      </div>
+      {imageError && <p className="text-sm text-destructive">{imageError}</p>}
+      <p className="text-xs text-muted-foreground">
+        {qrImage ? "The sign uses your QR code image. " : "Without an image, a QR code is made from your Revolut link. "}
+        Everything here is remembered on this device only, never uploaded or saved in the website's code.
+      </p>
 
       <div className="overflow-x-auto pb-1">
-        <PaymentSign revolut={revolut} bizum={bizum} />
+        <PaymentSign revolut={revolut} bizum={bizum} qrImage={qrImage} />
       </div>
 
       <Stepper label="How many signs" value={count} onChange={setCount} min={1} max={8} unit={count === 1 ? "sign" : "signs"} />
@@ -106,7 +145,7 @@ export function PaymentSigns() {
           <div key={p} className="card-sheet">
             {page.map((_, k) => (
               <div key={k} style={{ position: "absolute", left: `${(k % 2) * SIGN_W}mm`, top: `${Math.floor(k / 2) * SIGN_H}mm` }}>
-                <PaymentSign revolut={revolut} bizum={bizum} />
+                <PaymentSign revolut={revolut} bizum={bizum} qrImage={qrImage} />
               </div>
             ))}
             {/* cut guides through the middle of the page */}
@@ -119,8 +158,8 @@ export function PaymentSigns() {
   );
 }
 
-function PaymentSign({ revolut, bizum }: { revolut: string; bizum: string }) {
-  const hasRevolut = revolut.trim() !== "";
+function PaymentSign({ revolut, bizum, qrImage }: { revolut: string; bizum: string; qrImage: string }) {
+  const hasRevolut = revolut.trim() !== "" || qrImage !== "";
   const hasBizum = bizum.trim() !== "";
   const mm = (n: number) => `${n}mm`;
   return (
@@ -132,11 +171,15 @@ function PaymentSign({ revolut, bizum }: { revolut: string; bizum: string }) {
       <p className="font-display" style={{ fontSize: mm(7), lineHeight: 1, marginTop: mm(7) }}>Scan to pay</p>
       {hasRevolut ? (
         <>
-          <div style={{ marginTop: mm(4), padding: mm(2.5), background: "#fff", borderRadius: mm(3) }}>
-            <QRCodeSVG value={asUrl(revolut)} size={200} fgColor={INK} bgColor="#ffffff" level="M" style={{ width: mm(46), height: mm(46), display: "block" }} />
-          </div>
+          {qrImage ? (
+            <img src={qrImage} alt="" style={{ marginTop: mm(4), width: mm(51), height: mm(51), objectFit: "contain", borderRadius: mm(3) }} />
+          ) : (
+            <div style={{ marginTop: mm(4), padding: mm(2.5), background: "#fff", borderRadius: mm(3) }}>
+              <QRCodeSVG value={asUrl(revolut)} size={200} fgColor={INK} bgColor="#ffffff" level="M" style={{ width: mm(46), height: mm(46), display: "block" }} />
+            </div>
+          )}
           <p style={{ fontSize: mm(3), marginTop: mm(2.5) }}>
-            <strong>Revolut</strong> · {withoutProtocol(revolut)}
+            <strong>Revolut</strong>{revolut.trim() && <> · {withoutProtocol(revolut)}</>}
           </p>
         </>
       ) : (
