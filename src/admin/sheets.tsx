@@ -165,6 +165,7 @@ export function PieceSheet({
   const [categoryId, setCategoryId] = useState("");
   const [newCategory, setNewCategory] = useState("");
   const [price, setPrice] = useState("");
+  const [valued, setValued] = useState("");
   const [notes, setNotes] = useState("");
   const [forSale, setForSale] = useState(true);
   const [quantity, setQuantity] = useState("1");
@@ -186,12 +187,14 @@ export function PieceSheet({
     setPendingPhoto(null);
     setNewCategory("");
     setPrice(item?.price_eur?.toString() ?? "");
+    setValued(item?.valued_eur?.toString() ?? "");
     setNotes(item?.notes ?? "");
     setForSale(item?.status !== "not_for_sale");
     setQuantity(String(item?.quantity ?? 1));
   }, [open, item]);
 
   const parsed = parsePrice(price);
+  const parsedValued = parsePrice(valued);
   const qty = Number(quantity);
   const qtyError = !Number.isInteger(qty) || qty < 1
     ? "Enter a whole number, 1 or more"
@@ -201,7 +204,7 @@ export function PieceSheet({
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (parsed === "invalid" || qtyError || !label.trim()) return;
+    if (parsed === "invalid" || parsedValued === "invalid" || qtyError || !label.trim()) return;
     let category = categoryId;
     if (category === "__new") {
       if (!newCategory.trim()) return;
@@ -210,7 +213,7 @@ export function PieceSheet({
     const status = !forSale ? "not_for_sale" : left === 0 && sales.length > 0 ? "sold" : "available";
     const id = await save.mutateAsync({
       id: item?.id ?? null,
-      patch: { label: label.trim(), category_id: category, price_eur: parsed, notes: notes.trim() || null, status, quantity: qty },
+      patch: { label: label.trim(), category_id: category, price_eur: parsed, valued_eur: parsedValued, notes: notes.trim() || null, status, quantity: qty },
     });
     if (pendingPhoto) await setPhoto.mutateAsync({ itemId: id, oldPath: item?.photo_path ?? null, file: pendingPhoto });
     onClose();
@@ -271,11 +274,19 @@ export function PieceSheet({
             <Input aria-label="New category name" value={newCategory} onChange={(e) => setNewCategory(e.target.value)} placeholder="e.g. Planters" className="h-12" autoFocus />
           )}
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="p-price">Price</Label>
-          <Input id="p-price" inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="€" className="tabular h-12" />
-          {parsed === "invalid" && <p className="text-sm text-destructive">Enter a number, like 18 or 12.50</p>}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-2">
+            <Label htmlFor="p-price">Price</Label>
+            <Input id="p-price" inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="€" className="tabular h-12" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="p-valued">Valued price</Label>
+            <Input id="p-valued" inputMode="decimal" value={valued} onChange={(e) => setValued(e.target.value)} placeholder="€" className="tabular h-12" />
+          </div>
         </div>
+        {parsed === "invalid" || parsedValued === "invalid"
+          ? <p className="-mt-2 text-sm text-destructive">Enter a number, like 18 or 12.50</p>
+          : <p className="-mt-2 text-xs text-muted-foreground">Valued price: what it's worth with your time counted. Shown in grey next to the price.</p>}
         <div className="space-y-2">
           <Label htmlFor="p-qty">How many</Label>
           <Input id="p-qty" type="number" inputMode="numeric" min={1} step={1} value={quantity} onChange={(e) => setQuantity(e.target.value)} className="tabular h-12 w-28" />
@@ -297,7 +308,7 @@ export function PieceSheet({
           {item && item.status === "available" && left > 0 && (
             <Button type="button" variant="outline" className="h-12 flex-1 rounded-xl" onClick={() => onSell(item)}>Record sale</Button>
           )}
-          <Button type="submit" className="h-12 flex-1 rounded-xl" disabled={busy || parsed === "invalid" || !!qtyError}>
+          <Button type="submit" className="h-12 flex-1 rounded-xl" disabled={busy || parsed === "invalid" || parsedValued === "invalid" || !!qtyError}>
             {busy ? "Saving…" : isNew ? "Add piece" : "Save"}
           </Button>
         </div>

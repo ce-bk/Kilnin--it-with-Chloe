@@ -102,6 +102,7 @@ export default function Pieces({ items, categories, sales, markets }: AdminData)
                 {list.map((i) => {
                   const sale = i.status === "sold" ? bySale.get(i.id)?.at(-1) : undefined;
                   const qty = i.quantity ?? 1;
+                  const valued = i.valued_eur == null ? null : Number(i.valued_eur);
                   return (
                     <li key={i.id}>
                       <button onClick={() => setEditing(i)} className="flex w-full items-center gap-3 px-3 py-3 text-left hover:bg-muted/50">
@@ -114,7 +115,14 @@ export default function Pieces({ items, categories, sales, markets }: AdminData)
                           </div>
                         </div>
                         <p className={`tabular text-sm font-semibold ${i.price_eur == null && !sale ? "text-muted-foreground" : ""}`}>
-                          {sale ? <SoldPrice paid={sale.price_eur} listed={i.price_eur} /> : i.price_eur == null ? "No price" : eur(i.price_eur)}
+                          {sale ? <SoldPrice paid={sale.price_eur} listed={i.price_eur} /> : i.price_eur == null ? "No price" : (
+                            <span className="whitespace-nowrap">
+                              {valued != null && valued !== Number(i.price_eur) && (
+                                <span className="mr-1.5 text-[0.8em] font-normal text-muted-foreground" aria-label={`valued at ${eur(valued)},`}>{eur(valued)}</span>
+                              )}
+                              <span className="text-foreground">{eur(i.price_eur)}</span>
+                            </span>
+                          )}
                         </p>
                       </button>
                     </li>
