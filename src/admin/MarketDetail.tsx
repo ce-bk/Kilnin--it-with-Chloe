@@ -131,6 +131,9 @@ function Pack({ market, ...data }: Props) {
                     {(i.quantity ?? 1) > 1 && <span className="tabular text-muted-foreground"> × {i.quantity}</span>}
                     {n > 0 && <span className="text-muted-foreground"> · {(i.quantity ?? 1) > 1 ? `${n} ` : ""}sold here</span>}
                   </p>
+                  {i.valued_eur != null && (
+                    <span className="tabular shrink-0 text-sm text-muted-foreground" aria-label={`valued at ${eur(i.valued_eur)}`}>{eur(i.valued_eur)}</span>
+                  )}
                   {i.status === "available" && (
                     <input
                       aria-label={`Price for ${i.label}`}
@@ -201,7 +204,12 @@ export function MarketSell({ market, ...data }: Props) {
                 <div className="flex flex-1 flex-col p-3">
                   <p className="text-xs text-muted-foreground">{i.categories?.name}</p>
                   <p className="line-clamp-2 text-sm font-medium leading-snug">{i.label}</p>
-                  <p className="tabular mt-1 font-display text-xl font-semibold">{sale ? <SoldPrice paid={sale.price_eur} listed={i.price_eur} /> : i.price_eur == null ? <span className="font-sans text-sm font-medium text-muted-foreground">No price</span> : eur(i.price_eur)}</p>
+                  <p className="tabular mt-1 font-display text-xl font-semibold">
+                    {!sale && i.price_eur != null && i.valued_eur != null && (
+                      <span className="mr-1.5 font-sans text-sm font-normal text-muted-foreground" aria-label={`valued at ${eur(i.valued_eur)},`}>{eur(i.valued_eur)}</span>
+                    )}
+                    {sale ? <SoldPrice paid={sale.price_eur} listed={i.price_eur} /> : i.price_eur == null ? <span className="font-sans text-sm font-medium text-muted-foreground">No price</span> : eur(i.price_eur)}
+                  </p>
                   <div className="mt-auto pt-3">
                     {!done && <Button className="h-12 w-full rounded-xl text-base" onClick={() => setSelling(i)}>Sold</Button>}
                     {last && (done || multi) && (
