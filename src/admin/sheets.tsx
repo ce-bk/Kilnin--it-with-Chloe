@@ -1,5 +1,5 @@
 import { useEffect, useId, useMemo, useState, type ReactNode } from "react";
-import { Camera, ImagePlus } from "lucide-react";
+import { Camera, ImagePlus, Trash2 } from "lucide-react";
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +9,7 @@ import type { Category, Channel, Item, Market, PayMethod, Sale } from "@/lib/sup
 import { cn } from "@/lib/utils";
 import {
   localDay, channelLabel, eur, formatDate, METHODS, parsePrice, today,
-  useCreateCategory, useRecordSale, useSaveItem, useSetPhoto, useSaveMarket, useUndoSale,
+  matchPhoto, useBulkPhotos, useCreateCategory, useDeletePiece, useRecordSale, useSaveItem, useSetPhoto, useSaveMarket, useUndoSale,
 } from "./data";
 import { Status, Thumb } from "./ui";
 
@@ -140,9 +140,12 @@ export function PieceSheet({
   const pendingUrl = useMemo(() => (pendingPhoto ? URL.createObjectURL(pendingPhoto) : null), [pendingPhoto]);
   useEffect(() => () => { if (pendingUrl) URL.revokeObjectURL(pendingUrl); }, [pendingUrl]);
   const undo = useUndoSale();
+  const remove = useDeletePiece();
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   useEffect(() => {
     if (!open) return;
+    setConfirmDelete(false);
     setLabel(item?.label ?? "");
     setCategoryId(item?.category_id ?? "other");
     setPendingPhoto(null);
@@ -263,6 +266,25 @@ export function PieceSheet({
             {busy ? "Saving…" : isNew ? "Add piece" : "Save"}
           </Button>
         </div>
+        {item && !isNew && (
+          sales.length > 0 ? (
+            <p className="pt-2 text-center text-xs text-muted-foreground">This piece has sales, so it can't be deleted. Turn off For sale to hide it.</p>
+          ) : confirmDelete ? (
+            <div className="space-y-2 rounded-xl border border-destructive/40 p-3">
+              <p className="text-sm">Delete <strong>{item.label}</strong> for good? It also comes off any packing lists.</p>
+              <div className="flex gap-2">
+                <Button type="button" variant="outline" className="h-11 flex-1 rounded-xl" onClick={() => setConfirmDelete(false)}>Keep it</Button>
+                <Button type="button" variant="destructive" className="h-11 flex-1 rounded-xl" disabled={remove.isPending} onClick={() => remove.mutate(item, { onSuccess: onClose })}>
+                  {remove.isPending ? "Deleting…" : "Delete"}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <button type="button" onClick={() => setConfirmDelete(true)} className="mx-auto flex min-h-11 items-center gap-1.5 text-sm text-destructive underline-offset-4 hover:underline">
+              <Trash2 className="size-4" /> Delete piece
+            </button>
+          )
+        )}
       </form>
     </Sheet>
   );
@@ -314,6 +336,95 @@ function PhotoPicker({
         )}
       </div>
     </div>
+  );
+}
+
+// ---------------------------------------------------------------- Photos (several at once)
+
+/** Pick many photos; each is matched to a piece by its file name and can be changed before saving. */
+export function PhotosSheet({ open, items, onClose }: { open: boolean; items: Item[]; onClose: () => void }) {
+  const [rows, setRows] = useState<{ file: File; url: string; itemId: string }[]>([]);
+  const [done, setDone] = useState(0);
+  const upload = useBulkPhotos();
+  const inputId = useId();
+  const sorted = useMemo(() => [...items].sort((a, b) => a.label.localeCompare(b.label)), [items]);
+  const byId = useMemo(() => new Map(items.map((i) => [i.id, i])), [items]);
+
+  useEffect(() => {
+    if (!open) setRows((r) => { r.forEach((x) => URL.revokeObjectURL(x.url)); return []; });
+    setDone(0);
+  }, [open]);
+
+  function pick(files: FileList | null) {
+    if (!files) return;
+    const taken = new Set(rows.map((r) => r.itemId));
+    const next = [...files].map((file) => {
+      const m = matchPhoto(file.name, items);
+      const itemId = m && !taken.has(m.id) ? m.id : "";
+      if (itemId) taken.add(itemId);
+      return { file, url: URL.createObjectURL(file), itemId };
+    });
+    setRows((r) => [...r, ...next]);
+  }
+
+  const chosen = rows.filter((r) => r.itemId && byId.has(r.itemId));
+  const counts = new Map<string, number>();
+  chosen.forEach((r) => counts.set(r.itemId, (counts.get(r.itemId) ?? 0) + 1));
+  const doubled = [...counts.values()].some((n) => n > 1);
+
+  return (
+    <Sheet open={open} onClose={onClose} title="Add photos" description="Choose several photos. Each one is matched to a piece by its file name. Check the matches, then save.">
+      <div className="space-y-4">
+        <label htmlFor={inputId} className={cn("flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-input bg-card px-4 text-sm font-medium hover:bg-muted", upload.isPending && "pointer-events-none opacity-50")}>
+          <ImagePlus className="size-4" /> {rows.length ? "Choose more photos" : "Choose photos"}
+          <input id={inputId} type="file" accept="image/*" multiple className="sr-only" onChange={(e) => { pick(e.target.files); e.target.value = ""; }} />
+        </label>
+
+        {rows.length > 0 && (
+          <>
+            <p className="text-sm text-muted-foreground">
+              {chosen.length} of {rows.length} matched{rows.length > chosen.length && <> · the rest will be skipped unless you pick a piece</>}
+            </p>
+            <ul className="divide-y overflow-hidden rounded-2xl border bg-card">
+              {rows.map((r, k) => {
+                const piece = byId.get(r.itemId);
+                const dup = r.itemId && (counts.get(r.itemId) ?? 0) > 1;
+                return (
+                  <li key={r.url} className="flex items-center gap-3 p-3">
+                    <img src={r.url} alt="" className="size-14 shrink-0 rounded-lg object-cover" />
+                    <div className="min-w-0 flex-1 space-y-1">
+                      <p className="truncate text-xs text-muted-foreground" title={r.file.name}>{r.file.name}</p>
+                      <select
+                        aria-label={`Piece for ${r.file.name}`}
+                        value={r.itemId}
+                        disabled={upload.isPending}
+                        onChange={(e) => setRows((all) => all.map((x, j) => (j === k ? { ...x, itemId: e.target.value } : x)))}
+                        className={cn("h-11 w-full rounded-md border bg-background px-2 text-sm", r.itemId ? "border-input" : "border-dashed border-input text-muted-foreground", dup && "border-destructive")}
+                      >
+                        <option value="">Skip this photo</option>
+                        {sorted.map((i) => <option key={i.id} value={i.id}>{i.label}</option>)}
+                      </select>
+                      {dup ? <p className="text-xs text-destructive">Two photos are on this piece. Pick one.</p>
+                        : piece?.photo_path ? <p className="text-xs text-muted-foreground">Replaces its current photo</p> : null}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+            <Button
+              className="h-14 w-full rounded-xl text-base"
+              disabled={!chosen.length || doubled || upload.isPending}
+              onClick={() => upload.mutate(
+                { matches: chosen.map((r) => ({ file: r.file, item: byId.get(r.itemId)! })), onProgress: setDone },
+                { onSuccess: onClose },
+              )}
+            >
+              {upload.isPending ? `Saving ${done + 1} of ${chosen.length}…` : `Save ${chosen.length} photo${chosen.length === 1 ? "" : "s"}`}
+            </Button>
+          </>
+        )}
+      </div>
+    </Sheet>
   );
 }
 

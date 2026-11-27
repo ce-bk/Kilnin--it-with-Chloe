@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Item, Sale } from "@/lib/supabase";
-import { eur, groupByCategory, parsePrice, salesByItem, sum, unitsLeft } from "./data";
+import { eur, groupByCategory, matchPhoto, parsePrice, salesByItem, sum, unitsLeft } from "./data";
 
 const item = (over: Partial<Item> = {}): Item => ({
   id: "a", category_id: "bowls", site_piece_id: null, photo_path: null, label: "Bowl", price_eur: 20,
@@ -45,5 +45,29 @@ describe("helpers", () => {
     expect(eur(30)).toBe("€30");
     expect(eur(12.5)).toBe("€12.50");
     expect(eur(null)).toBe("—");
+  });
+});
+
+describe("matchPhoto", () => {
+  const pieces = [
+    item({ id: "low", label: "Low chunky cake stand" }),
+    item({ id: "big", label: "Footed cake stand, large" }),
+    item({ id: "dip", label: "Small dip bowl" }),
+    item({ id: "sap1", label: "Sap mug (yellow drip) 1" }),
+    item({ id: "sap2", label: "Sap mug (yellow drip) 2" }),
+    item({ id: "ph", label: "Page holder" }),
+  ];
+  const id = (name: string) => matchPhoto(name, pieces)?.id ?? null;
+  it("matches the exact name, ignoring case and punctuation", () => {
+    expect(id("low chunky cake stand.JPG")).toBe("low");
+    expect(id("Sap mug (yellow drip) 2.jpg")).toBe("sap2");
+  });
+  it("matches a name followed by extra words", () => {
+    expect(id("Small dip bowl (my guess - check).jpg")).toBe("dip");
+    expect(id("Footed cake stand, large (shown with the small one).jpg")).toBe("big");
+  });
+  it("doesn't match part of a word or an unknown name", () => {
+    expect(id("Page holders.jpg")).toBeNull();
+    expect(id("Guac bowl.jpg")).toBeNull();
   });
 });

@@ -30,7 +30,7 @@ export default function Home({ items, sales, markets, marketItems }: AdminData) 
 
   const tasks = [
     unpriced.length > 0 && { to: "/admin/pieces?filter=unpriced", text: <><strong>{unpriced.length} {unpriced.length === 1 ? "piece needs" : "pieces need"}</strong> a price</> },
-    toCheck.length > 0 && { to: "/admin/pieces?filter=check", text: <><strong>{toCheck.length} {toCheck.length === 1 ? "note" : "notes"}</strong> to check</> },
+    toCheck.length > 0 && { to: "/admin/pieces?filter=check", text: <><strong>{toCheck.length} {toCheck.length === 1 ? "piece has" : "pieces have"}</strong> a question to answer</> },
     leadsDue.length > 0 && { to: "/admin/leads", text: <><strong>{leadsDue.length} {leadsDue.length === 1 ? "lead" : "leads"}</strong> to follow up this week</> },
     next && { to: `/admin/events/${next.id}?tab=pack`, text: <><strong>{nextPacked} packed</strong> for {next.name}</> },
   ].filter(Boolean) as { to: string; text: React.ReactNode }[];
