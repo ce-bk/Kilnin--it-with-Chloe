@@ -86,12 +86,6 @@ export default function Pieces({ items, categories, sales, markets }: AdminData)
         ) : (
           <Segmented value={filter} onChange={(v) => setParams(v === "available" ? {} : { filter: v })} options={filters} />
         )}
-        {shown.length > 0 && (
-          <div className="flex justify-end gap-3 px-3 text-xs font-medium text-muted-foreground" aria-hidden>
-            <span className="w-16 text-right">Valued price</span>
-            <span className="w-16 text-right">Market price</span>
-          </div>
-        )}
       </div>
 
       {shown.length === 0 ? (
@@ -100,10 +94,11 @@ export default function Pieces({ items, categories, sales, markets }: AdminData)
         <div className="space-y-6 pt-3">
           {groups.map(([category, list]) => (
             <section key={category}>
-              <h2 className="mb-2 flex items-baseline justify-between px-1 text-sm font-semibold">
-                {category}
-                <span className="text-xs font-normal text-muted-foreground">{list.length}</span>
-              </h2>
+              <div className="mb-2 flex items-end gap-3 pl-1 pr-[13px]">
+                <h2 className="flex-1 text-sm font-semibold">{category}</h2>
+                <span className="w-16 text-right text-xs leading-tight text-muted-foreground" aria-hidden>Valued price</span>
+                <span className="w-16 text-right text-xs leading-tight text-muted-foreground" aria-hidden>Market price</span>
+              </div>
               <ul className="divide-y overflow-hidden rounded-2xl border bg-card">
                 {list.map((i) => {
                   const sale = i.status === "sold" ? bySale.get(i.id)?.at(-1) : undefined;
