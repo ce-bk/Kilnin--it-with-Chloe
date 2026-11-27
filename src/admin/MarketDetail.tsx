@@ -60,9 +60,11 @@ function usePacked(market: Market, { items, marketItems, sales }: AdminData) {
     const marketSales = sales.filter((s) => s.market_id === market.id);
     const saleByItem = salesByItem(marketSales); // sales made at this event
     const allSales = salesByItem(sales);
-    const packed = items.filter((i) => ids.has(i.id) || saleByItem.has(i.id));
-    const soldHere = (i: Item) => saleByItem.get(i.id)?.length ?? 0;
     const left = (i: Item) => unitsLeft(i, allSales);
+    // Exactly what's ticked on the Pack tab: packed and still for sale, plus anything already sold here.
+    // A piece taken out of sale, or sold somewhere else, drops off the Sell tab even if it was packed.
+    const packed = items.filter((i) => saleByItem.has(i.id) || (ids.has(i.id) && i.status === "available" && left(i) > 0));
+    const soldHere = (i: Item) => saleByItem.get(i.id)?.length ?? 0;
     /** Units brought to the event: what's still left plus what sold here. */
     const units = (i: Item) => left(i) + soldHere(i);
     return { ids, packed, marketSales, saleByItem, soldHere, left, units };

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { NavLink, Navigate, Route, Routes, useLocation } from "react-router-dom";
+import { NavLink, Navigate, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import type { Session } from "@supabase/supabase-js";
 import { CalendarDays, Home as HomeIcon, IdCard, LogOut, Package, ReceiptText, Sprout, Tag } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -61,6 +61,7 @@ function SignIn() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const navigate = useNavigate();
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -68,6 +69,7 @@ function SignIn() {
     setError(null);
     const { error } = await supabase!.auth.signInWithPassword({ email, password });
     if (error) setError(error.message === "Invalid login credentials" ? "That email and password don't match. Try again." : error.message);
+    else navigate("/admin", { replace: true }); // always start on Home after signing in
     setBusy(false);
   }
 
