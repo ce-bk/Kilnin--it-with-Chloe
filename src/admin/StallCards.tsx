@@ -68,8 +68,13 @@ function Stepper({ label, value, onChange, min, max, unit }: { label: string; va
   );
 }
 
-function PrintHelp({ children }: { children: ReactNode }) {
-  return <p className="rounded-2xl border bg-card p-4 text-sm text-muted-foreground">{children}</p>;
+function PrintHelp({ children, action }: { children: ReactNode; action: ReactNode }) {
+  return (
+    <div className="rounded-2xl border bg-card p-4 text-sm text-muted-foreground">
+      <p>{children}</p>
+      <div className="mt-3">{action}</div>
+    </div>
+  );
 }
 
 /** Read a picked image as a small PNG (max 600px), so it fits in the browser's memory for this site. */
@@ -135,10 +140,9 @@ export function PaymentSigns() {
       </div>
 
       <Stepper label="How many signs" value={count} onChange={setCount} min={1} max={8} unit={count === 1 ? "sign" : "signs"} />
-      <PrintHelp>
+      <PrintHelp action={<Button className="h-11 w-full rounded-xl sm:w-auto" disabled={!ready} onClick={() => window.print()}><Printer /> Print payment {count === 1 ? "sign" : "signs"}</Button>}>
         Postcard size (A6), 4 to an A4 sheet. In the print window choose <strong className="text-foreground">A4</strong> and scale <strong className="text-foreground">100% / Actual size</strong>, then cut along the faint lines. Thicker paper or card works best for a sign that stands up.
       </PrintHelp>
-      <Button className="h-12 w-full rounded-xl" disabled={!ready} onClick={() => window.print()}><Printer /> Print payment {count === 1 ? "sign" : "signs"}</Button>
 
       <PrintPortal>
         {chunk(Array.from({ length: count }), 4).map((page, p) => (
@@ -223,10 +227,9 @@ export function BrandCards() {
       </div>
 
       <Stepper label="How many sheets" value={sheets} onChange={setSheets} min={1} max={5} unit={`× 9`} />
-      <PrintHelp>
+      <PrintHelp action={<Button className="h-11 w-full rounded-xl sm:w-auto" disabled={!handle} onClick={() => window.print()}><Printer /> Print {sheets * 9} brand cards</Button>}>
         Business-card size, the same as the piece cards: 9 to an A4 sheet, one side only. In the print window choose <strong className="text-foreground">A4</strong> and scale <strong className="text-foreground">100% / Actual size</strong>. Cut along the marks.
       </PrintHelp>
-      <Button className="h-12 w-full rounded-xl" disabled={!handle} onClick={() => window.print()}><Printer /> Print {sheets * 9} brand cards</Button>
 
       <PrintPortal>
         {Array.from({ length: sheets }, (_, p) => (

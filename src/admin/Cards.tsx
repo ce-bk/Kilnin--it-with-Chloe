@@ -7,7 +7,7 @@ import type { Item } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
 import mark from "@/assets/kilninit-mark.png";
 import type { AdminData } from "./AdminApp";
-import { groupByCategory, salesByItem, unitsLeft } from "./data";
+import { groupByCategory, salesByItem, unitsLeft, useSaveItem } from "./data";
 import { Empty, PageHeader, Segmented, Thumb } from "./ui";
 import { BrandCards, PaymentSigns } from "./StallCards";
 
@@ -63,6 +63,19 @@ function PieceCards({ items, sales }: AdminData) {
   const [names, setNames] = useState<Record<string, string>>({});
   const countOf = (i: Item) => copies[i.id] ?? defaultCopies(i);
   const nameOf = (i: Item) => names[i.id] ?? cardName(i.label);
+  const save = useSaveItem();
+
+  /** A name changed here is the piece's name everywhere (Pieces, events, sales), so save it. */
+  function saveName(i: Item) {
+    const typed = names[i.id]?.trim();
+    if (typed === undefined) return;
+    if (typed && typed !== cardName(i.label)) {
+      const number = i.label.match(/\s+\d+$/)?.[0] ?? ""; // keep "2" in "Sap mug 2" so the two stay apart in the inventory
+      save.mutate({ id: i.id, patch: { label: `${typed}${number}` } }, { onSettled: () => setNames(({ [i.id]: _, ...rest }) => rest) });
+    } else {
+      setNames(({ [i.id]: _, ...rest }) => rest);
+    }
+  }
 
   const cards: Card[] = shown.flatMap((i) =>
     Array.from({ length: countOf(i) }, (_, n) => ({ key: `${i.id}-${n}`, name: nameOf(i), photo: photoOf(i) })),
@@ -82,7 +95,6 @@ function PieceCards({ items, sales }: AdminData) {
   return (
     <div>
       <div className="space-y-4">
-        <Button className="h-11 w-full rounded-xl sm:w-auto" disabled={cards.length === 0} onClick={print}><Printer /> Print piece cards</Button>
         <Segmented<"available" | "all"> value={scope} onChange={setScope} options={[{ value: "available", label: "In stock" }, { value: "all", label: "All pieces" }]} />
 
         <div className="rounded-2xl border bg-card p-4 text-sm">
@@ -93,6 +105,7 @@ function PieceCards({ items, sales }: AdminData) {
           <p className="mt-2 text-muted-foreground">
             In the print window choose <strong className="text-foreground">A4</strong>, scale <strong className="text-foreground">100% / Actual size</strong>, and <strong className="text-foreground">two-sided, flip on long edge</strong>. Cut along the marks.
           </p>
+          <Button className="mt-3 h-11 w-full rounded-xl sm:w-auto" disabled={cards.length === 0} onClick={print}><Printer /> Print piece cards</Button>
         </div>
 
         <div className="sticky top-0 z-10 -mx-4 bg-background/95 px-4 pb-2 pt-1 backdrop-blur md:-mx-8 md:px-8">
@@ -121,6 +134,8 @@ function PieceCards({ items, sales }: AdminData) {
                       aria-label={`Name on the card for ${i.label}`}
                       value={nameOf(i)}
                       onChange={(e) => setNames((m) => ({ ...m, [i.id]: e.target.value }))}
+                      onBlur={() => saveName(i)}
+                      onKeyDown={(e) => { if (e.key === "Enter") e.currentTarget.blur(); }}
                       className="h-10 min-w-0 flex-1 rounded-lg border border-transparent bg-transparent px-2 text-sm hover:border-input focus-visible:border-input focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     />
                     <div className="flex shrink-0 items-center gap-1" role="group" aria-label={`Cards for ${i.label}`}>
