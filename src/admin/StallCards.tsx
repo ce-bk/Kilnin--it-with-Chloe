@@ -261,7 +261,7 @@ export function BrandCards() {
 
       <Stepper label="How many sheets" value={sheets} onChange={setSheets} min={1} max={5} unit={`× ${perSheet}`} />
       <PrintHelp action={<Button className="h-11 w-full rounded-xl sm:w-auto" disabled={isQr && !handle} onClick={() => window.print()}><Printer /> Print {sheets * perSheet} cards</Button>}>
-        {isQr ? "Business-card size, the same as the piece cards" : `Square, ${SQ / 10} × ${SQ / 10} cm`}: {perSheet} to an A4 sheet, printed both sides. In the print window choose <strong className="text-foreground">A4</strong>, scale <strong className="text-foreground">100% / Actual size</strong>, and <strong className="text-foreground">two-sided, flip on long edge</strong>. Cut along the marks.
+        {isQr ? "Business-card size" : `Square, ${SQ / 10} × ${SQ / 10} cm`}: {perSheet} to an A4 sheet, printed both sides. In the print window choose <strong className="text-foreground">A4</strong>, scale <strong className="text-foreground">100% / Actual size</strong>, and <strong className="text-foreground">two-sided, flip on long edge</strong>. Cut along the marks.
       </PrintHelp>
 
       <PrintPortal>
